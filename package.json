@@ -1,0 +1,12 @@
+{
+  "name": "all3dp-3dviewer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "ThreeJS Viewer for All3DP comparision",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "All3DP GmbH",
+  "license": "MIT"
+}
