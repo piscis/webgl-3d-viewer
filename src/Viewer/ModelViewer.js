@@ -19,6 +19,7 @@ export default class ModelViewer {
     this.sphere = null;
     this.boundingBox = null;
     this.modelWireframe = null;
+    this.stats = null;
     this.config = {};
 
     this.defaultConfig = {
@@ -26,11 +27,19 @@ export default class ModelViewer {
       plane: false,
       boundingBox: false,
       sphere: false,
-      axis: false
+      axis: false,
+      stats: null,
+      autoRotate: false,
+      material: true
     };
 
     // Prepare config
     this.config = merge(this.config, this.defaultConfig, config);
+
+
+    if(this.config.stats){
+      this.stats = this.config.stats;
+    }
 
     // Loading state
     this.loaded = false;
@@ -130,6 +139,32 @@ export default class ModelViewer {
     }
   }
 
+  toggleAutoRotate(){
+
+    if(this.model){
+      this.controls.autoRotate = !this.controls.autoRotate;
+      this.config.autoRotate = this.controls.autoRotate;
+    }
+  }
+
+  toggleMaterial(){
+
+    if(this.model){
+
+      if(this.config.material){
+        this.scene.remove(this.model);
+        this.config.material = false;
+      }else{
+        this.scene.add(this.model);
+        this.config.material = true;
+      }
+    }
+  }
+
+  setStats(stats){
+    this.stats = stats;
+  }
+
   _setupCamera(){
 
     var height = this.container.clientHeight;
@@ -177,7 +212,7 @@ export default class ModelViewer {
     controls.enableDamping = true;
     controls.dampingFactor = 0.3;
 
-    controls.autoRotate = true
+    controls.autoRotate = this.config.autoRotate;
 
     controls.keys = [ 65, 83, 68 ];
 
@@ -199,8 +234,9 @@ export default class ModelViewer {
 
     var height = this.container.clientHeight;
     var width = this.container.clientWidth;
-    var renderer = new THREE.WebGLRenderer( { antialias: true } );
+    var renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
 
+    renderer.setClearColor( 0x000000, 0 );
     renderer.setPixelRatio( window.devicePixelRatio );
     renderer.setSize( width, height );
 
@@ -445,7 +481,9 @@ export default class ModelViewer {
     mesh.material = material;
     this.model = mesh;
 
-    this.scene.add(this.model);
+    if(this.config.material){
+      this.scene.add(this.model);
+    }
 
     this._setupControls();
 
@@ -454,7 +492,6 @@ export default class ModelViewer {
     this.animate();
     this.loaded = true;
     cb()
-
   }
 
   _onWindowResize() {
@@ -490,7 +527,7 @@ export default class ModelViewer {
       //console.log(f.name + " - " + f.type)
 
       if (!/.*\.stl$/i.test(f.name)){
-        alert("File type not recognised.");
+        alert('File type not recognised.');
         continue;
       }
 
@@ -530,6 +567,7 @@ export default class ModelViewer {
   render(){
 
     if(this.scene, this.camera){
+
       this.renderer.render(this.scene, this.camera);
     }
   }
@@ -537,6 +575,7 @@ export default class ModelViewer {
 
   animate() {
 
+    if(this.stats){this.stats.begin()}
     this.animationId = requestAnimationFrame(()=>{ this.animate()});
 
     if(this.controls){
@@ -544,6 +583,7 @@ export default class ModelViewer {
     }
 
     this.render();
+    if(this.stats){this.stats.end()}
   }
 
   destroy() {

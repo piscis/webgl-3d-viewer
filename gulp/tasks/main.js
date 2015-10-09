@@ -9,3 +9,7 @@ var gulp = gulpHelp(gulpMain);
 gulp.task('dev','Start gulp with `gulp dev` to start developing', (cb)=>{
   return runSequence('clean:build','source','watch',cb);
 });
+
+gulp.task('release','Start gulp with `gulp release` to create a release build', (cb)=>{
+  return runSequence(['clean:build','clean:dist'],'source','release:build', cb);
+});
