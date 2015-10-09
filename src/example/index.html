@@ -1,0 +1,85 @@
+<html>
+  <head>
+    <title>STL Viewer</title>
+
+    <link href="vendor/stlviewer.css" rel="stylesheet">
+
+    <script src="vendor/three.js"></script>
+    <script src="vendor/jquery.js"></script>
+    <script src="vendor/dat.gui.min.js"></script>
+
+    <script src="../viewer/main.js"></script>
+
+    <script>
+
+      $(document).ready(function() {
+
+        var id = "stlviewer";
+
+        var viewer = new All3DP.ModelViewer(document.getElementById(id));
+
+        window.viewer = viewer;
+
+        var gui = new dat.GUI();
+
+        var Configuration = function() {
+          this.color = "#ffffff";
+          this.wireframe = false;
+          this.plane = false;
+          this.boundingBox = false;
+          this.sphere = false;
+          this.axis = false;
+
+          this.model = '';
+          this.modelSamples = {
+            "":   "",
+            "Snowman":   "/example/model/snowman.stl",
+            "3D Benchy": "/example/model/3DBenchy.stl",
+            "3D Buddha": "/example/model/buddha_flat_bottom.stl"
+          }
+
+        };
+        var cfg = new Configuration();
+
+        gui.addColor(cfg, 'color').onChange(function(colorValue) {
+          viewer.setModelColorByHexcode(colorValue);
+        });
+
+        gui.add(cfg, 'wireframe').onChange(function(val){
+          viewer.toggleModelWireframe();
+        });
+
+        gui.add(cfg, 'plane').onChange(function(val){
+          viewer.togglePlane();
+        });
+
+        gui.add(cfg, 'boundingBox').onChange(function(val){
+          viewer.toggleBoundingBox();
+        });
+
+        gui.add(cfg, 'sphere').onChange(function(val){
+          viewer.toggleSphere();
+        });
+
+        gui.add(cfg, 'axis').onChange(function(val){
+          viewer.toggleAxis();
+        });
+
+        gui.add(cfg, 'model', cfg.modelSamples).onChange(function(val){
+          viewer.load(val,function(){
+            viewer.setModelColorByHexcode(cfg.color);
+          });
+        });
+      });
+    </script>
+
+  </head>
+  <body>
+
+    <div id="stlviewer"></div>
+
+    <div class="settings">Drag and drop STL files (binary or ascii) to the window to display.</div>
+
+
+  </body>
+</html>

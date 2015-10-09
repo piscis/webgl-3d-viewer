@@ -5,7 +5,8 @@
   "description": "ThreeJS Viewer for All3DP comparision",
   "main": "dist/index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "lint": "eslint src gulp gulpfile.babel.js",
+    "dev": "parallelshell 'gulp dev' 'http-server ./build'"
   },
   "engines": {
     "node": ">= 0.10",
@@ -14,25 +15,40 @@
   "author": "All3DP GmbH",
   "license": "MIT",
   "devDependencies": {
+    "async": "^1.4.2",
     "autoprefixer-core": "^6.0.1",
     "babel-core": "^5.8.25",
     "babel-eslint": "^4.1.3",
     "babel-loader": "^5.3.2",
+    "babel-runtime": "^5.8.25",
+    "babelify": "^6.3.0",
+    "browserify": "^11.2.0",
     "del": "^2.0.2",
     "eslint": "^1.5.1",
     "gulp": "^3.9.0",
+    "gulp-babel": "^5.2.1",
     "gulp-changed": "^1.3.0",
+    "gulp-concat": "^2.6.0",
+    "gulp-help": "^1.6.1",
     "gulp-if": "^2.0.0",
     "gulp-load-plugins": "^0.10.0",
     "gulp-rename": "^1.2.2",
     "gulp-size": "^2.0.0",
+    "gulp-sourcemaps": "^1.6.0",
     "gulp-util": "^3.0.6",
+    "http-server": "^0.8.5",
     "minimist": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "parallelshell": "^2.0.0",
+    "require-dir": "^0.3.0",
+    "run-sequence": "^1.1.4",
+    "vinyl-source-stream": "^1.1.0",
     "webpack": "^1.12.2"
   },
   "dependencies": {
     "babel": "^5.8.23",
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "style-loader": "^0.12.4",
+    "three": "^0.72.0"
   }
 }
