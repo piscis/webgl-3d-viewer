@@ -3,10 +3,11 @@
   "version": "1.0.0",
   "private": true,
   "description": "ThreeJS Viewer for All3DP comparision",
-  "main": "dist/index.js",
+  "main": "dist/viewer/main.js",
   "scripts": {
-    "lint": "eslint src gulp gulpfile.babel.js",
-    "dev": "parallelshell 'gulp dev' 'http-server ./build'"
+    "lint": "eslint src/viewer gulp gulpfile.babel.js",
+    "dev": "parallelshell 'gulp dev' 'http-server ./build'",
+    "release": "npm run lint && gulp release"
   },
   "engines": {
     "node": ">= 0.10",
@@ -35,6 +36,7 @@
     "gulp-rename": "^1.2.2",
     "gulp-size": "^2.0.0",
     "gulp-sourcemaps": "^1.6.0",
+    "gulp-uglify": "^1.4.1",
     "gulp-util": "^3.0.6",
     "http-server": "^0.8.5",
     "minimist": "^1.2.0",

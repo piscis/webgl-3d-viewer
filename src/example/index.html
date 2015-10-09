@@ -7,6 +7,7 @@
     <script src="vendor/three.js"></script>
     <script src="vendor/jquery.js"></script>
     <script src="vendor/dat.gui.min.js"></script>
+    <script src="vendor/stats.min.js"></script>
 
     <script src="../viewer/main.js"></script>
 
@@ -14,28 +15,41 @@
 
       $(document).ready(function() {
 
-        var id = "stlviewer";
+        // Enable Stats
+        var stats = new Stats();
+        stats.setMode( 0 ); // 0: fps, 1: ms, 2: mb
 
-        var viewer = new All3DP.ModelViewer(document.getElementById(id));
+        // align top-left
+        stats.domElement.style.position = 'absolute';
+        stats.domElement.style.left = '0px';
+        stats.domElement.style.top = '0px';
+
+        document.body.appendChild( stats.domElement );
+
+        var id = "stlviewer";
+        var viewer = new All3DP.ModelViewer(document.getElementById(id),{"stats":stats,"autoRotate":true});
 
         window.viewer = viewer;
 
         var gui = new dat.GUI();
 
         var Configuration = function() {
-          this.color = "#ffffff";
+          this.color   = "#c3b9b9";
+          this.BodyBgColor = "#000000";
           this.wireframe = false;
           this.plane = false;
           this.boundingBox = false;
           this.sphere = false;
           this.axis = false;
+          this.autorotate = true;
+          this.material = true;
 
           this.model = '';
           this.modelSamples = {
             "":   "",
-            "Snowman":   "/example/model/snowman.stl",
-            "3D Benchy": "/example/model/3DBenchy.stl",
-            "3D Buddha": "/example/model/buddha_flat_bottom.stl"
+            "Snowman":   "model/snowman.stl",
+            "3D Benchy": "model/3DBenchy.stl",
+            "3D Buddha": "model/buddha_flat_bottom.stl"
           }
 
         };
@@ -43,6 +57,10 @@
 
         gui.addColor(cfg, 'color').onChange(function(colorValue) {
           viewer.setModelColorByHexcode(colorValue);
+        });
+
+        gui.addColor(cfg, 'BodyBgColor').onChange(function(colorValue) {
+          document.body.style.background = colorValue;
         });
 
         gui.add(cfg, 'wireframe').onChange(function(val){
@@ -65,11 +83,20 @@
           viewer.toggleAxis();
         });
 
+        gui.add(cfg, 'autorotate').onChange(function(val){
+          viewer.toggleAutoRotate();
+        });
+
+        gui.add(cfg, 'material').onChange(function(val){
+          viewer.toggleMaterial();
+        });
+
         gui.add(cfg, 'model', cfg.modelSamples).onChange(function(val){
           viewer.load(val,function(){
             viewer.setModelColorByHexcode(cfg.color);
           });
         });
+
       });
     </script>
 

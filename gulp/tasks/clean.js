@@ -12,7 +12,21 @@ gulp.task('clean:build', false, (cb)=>{
   let files = [
     'build/**/*.*',
     'build/*.*',
-    'build/.*'
+    'build/.*',
+    'build/*'
+  ];
+
+  return del(files, cb);
+});
+
+
+gulp.task('clean:dist', false, (cb)=>{
+
+  let files = [
+    'dist/**/*.*',
+    'dist/*.*',
+    'dist/.*',
+    'dist/*'
   ];
 
   return del(files, cb);
