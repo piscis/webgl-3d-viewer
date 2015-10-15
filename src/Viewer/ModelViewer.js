@@ -33,6 +33,7 @@ export default class ModelViewer {
       axis: false,
       stats: null,
       autoRotate: false,
+      dragDrop: false,
       material: true
     };
 
@@ -448,11 +449,13 @@ export default class ModelViewer {
       this._onDragOver(ev);
     };
 
-    var dropZone = this.container;
-    dropZone.addEventListener('drop', this._dropListener, false);
+    if(this.config.dragDrop === true) {
+      var dropZone = this.container;
+      dropZone.addEventListener('drop', this._dropListener, false);
 
-    // for Firefox
-    dropZone.addEventListener('dragover', this._dragOverListener, false);
+      // for Firefox
+      dropZone.addEventListener('dragover', this._dragOverListener, false);
+    }
   }
 
   _restoreConfig(){
