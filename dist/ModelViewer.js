@@ -10,13 +10,13 @@ function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { 'd
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError('Cannot call a class as a function'); } }
 
-var _lodashMax = require('lodash/max');
+var _lodashMathMax = require('lodash/math/max');
 
-var _lodashMax2 = _interopRequireDefault(_lodashMax);
+var _lodashMathMax2 = _interopRequireDefault(_lodashMathMax);
 
-var _lodashMerge = require('lodash/merge');
+var _lodashObjectMerge = require('lodash/object/merge');
 
-var _lodashMerge2 = _interopRequireDefault(_lodashMerge);
+var _lodashObjectMerge2 = _interopRequireDefault(_lodashObjectMerge);
 
 var ModelViewer = (function () {
   function ModelViewer(domElm) {
@@ -54,7 +54,7 @@ var ModelViewer = (function () {
     };
 
     // Prepare config
-    this.config = (0, _lodashMerge2['default'])(this.config, this.defaultConfig, config);
+    this.config = (0, _lodashObjectMerge2['default'])(this.config, this.defaultConfig, config);
 
     if (this.config.stats) {
       this.stats = this.config.stats;
@@ -314,7 +314,7 @@ var ModelViewer = (function () {
         n.computeBoundingBox();
         n.computeBoundingSphere();
 
-        var maxDimension = (0, _lodashMax2['default'])(this.model.geometry.boundingBox.max);
+        var maxDimension = (0, _lodashMathMax2['default'])(this.model.geometry.boundingBox.max);
         maxDimension = Math.ceil(~ ~(maxDimension * 1.50) / 10) * 10;
 
         var axisHelper = new THREE.AxisHelper(maxDimension);
@@ -343,7 +343,7 @@ var ModelViewer = (function () {
         n.computeBoundingBox();
         n.computeBoundingSphere();
 
-        var maxDimension = (0, _lodashMax2['default'])(this.model.geometry.boundingBox.max);
+        var maxDimension = (0, _lodashMathMax2['default'])(this.model.geometry.boundingBox.max);
         maxDimension = Math.ceil(~ ~(maxDimension * 1.10) / 10) * 10;
 
         var plane = new THREE.GridHelper(maxDimension, 10);
