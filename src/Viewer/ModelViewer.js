@@ -1,4 +1,5 @@
-import {max, merge} from 'lodash';
+import max from 'lodash/max';
+import merge from 'lodash/merge';
 
 export default class ModelViewer {
 
