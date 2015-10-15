@@ -6,17 +6,30 @@ import uglify      from 'gulp-uglify';
 
 var gulp = gulpHelp(gulpMain);
 
-gulp.task('release:compress', false, () => {
-  return gulp.src('build/viewer/*.js')
-    .pipe(uglify())
+gulp.task('release:viewer', false, () => {
+
+  var files = [
+    'build/viewer/**/*.*',
+    'build/viewer/*.*'
+  ];
+
+  return gulp.src(files)
     .pipe(gulp.dest('dist/viewer'));
+})
+
+gulp.task('release:compress', false, () => {
+
+  return gulp.src('build/example/main.js')
+    .pipe(uglify())
+    .pipe(gulp.dest('dist/example'));
 });
 
 gulp.task('release:example', false, () => {
 
   var files = [
     'build/example/**/*.*',
-    'build/example/*.*'
+    'build/example/*.*',
+    '!build/example/main.js'
   ];
 
   return gulp.src(files)
@@ -24,5 +37,5 @@ gulp.task('release:example', false, () => {
 });
 
 gulp.task('release:build', false, (cb)=>{
-  return runSequence(['release:compress','release:example'], cb);
+  return runSequence(['release:compress','release:viewer','release:example'], cb);
 });

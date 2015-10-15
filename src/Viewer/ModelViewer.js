@@ -1,5 +1,7 @@
 import max from 'lodash/math/max';
 import merge from 'lodash/object/merge';
+import rest from 'lodash/array/rest';
+import each from 'lodash/collection/each';
 
 export default class ModelViewer {
 
@@ -381,8 +383,8 @@ export default class ModelViewer {
 
     cancelAnimationFrame(this.animationId);
 
-    var objsToRemove = _.rest(this.scene.children, 1);
-    _.each(objsToRemove, (object) =>{
+    var objsToRemove = rest(this.scene.children, 1);
+    each(objsToRemove, (object) => {
       this.scene.remove(object);
     });
 

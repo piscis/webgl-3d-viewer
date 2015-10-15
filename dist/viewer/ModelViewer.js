@@ -18,6 +18,14 @@ var _lodashObjectMerge = require('lodash/object/merge');
 
 var _lodashObjectMerge2 = _interopRequireDefault(_lodashObjectMerge);
 
+var _lodashArrayRest = require('lodash/array/rest');
+
+var _lodashArrayRest2 = _interopRequireDefault(_lodashArrayRest);
+
+var _lodashCollectionEach = require('lodash/collection/each');
+
+var _lodashCollectionEach2 = _interopRequireDefault(_lodashCollectionEach);
+
 var ModelViewer = (function () {
   function ModelViewer(domElm) {
     var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
@@ -425,8 +433,8 @@ var ModelViewer = (function () {
 
       cancelAnimationFrame(this.animationId);
 
-      var objsToRemove = _.rest(this.scene.children, 1);
-      _.each(objsToRemove, function (object) {
+      var objsToRemove = (0, _lodashArrayRest2['default'])(this.scene.children, 1);
+      (0, _lodashCollectionEach2['default'])(objsToRemove, function (object) {
         _this2.scene.remove(object);
       });
 
