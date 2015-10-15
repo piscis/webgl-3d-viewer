@@ -599,5 +599,7 @@ export default class ModelViewer {
 
     this.container.removeEventListener('drop',     this._dropListener, false);
     this.container.removeEventListener('dragover', this._dragOverListener, false);
+
+    this.container.remove();
   }
 }
