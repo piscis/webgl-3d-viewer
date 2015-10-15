@@ -49,10 +49,10 @@
     "vinyl-source-stream": "^1.1.0",
     "webpack": "^1.12.2",
     "babel": "^5.8.23",
-    "style-loader": "^0.12.4"
+    "style-loader": "^0.12.4",
+    "three": "^0.72.0"
   },
   "dependencies": {
-    "lodash": "^3.10.1",
-    "three": "^0.72.0"
+    "lodash": "^3.10.1"
   }
 }
