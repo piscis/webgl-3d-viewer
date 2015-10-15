@@ -4,13 +4,35 @@ import concat      from 'gulp-concat';
 import del         from 'del';
 import runSequence from 'run-sequence';
 import gutil       from 'gulp-util';
+import babel       from 'gulp-babel';
 import webpack     from 'webpack';
 
 var gulp = gulpHelp(gulpMain);
 
-gulp.task('source:es6', function(callback) {
+gulp.task('source:webpack', false, function(callback) {
 
-  webpack(require('../../webpack.config.js'), function(err, stats) {
+  var config = {
+    entry: './src/example/main.js',
+    output: {
+      path: __dirname+'/../../build/example',
+      filename: 'main.js'
+    },
+    module: {
+      loaders: [
+        {
+          test: /\.js?$/,
+          exclude: /(node_modules|bower_components)/,
+          loader: 'babel',
+          query: {
+            optional: ['runtime'],
+            stage: 0
+          }
+        }
+      ]
+    }
+  };
+
+  webpack(config, function(err, stats) {
 
     if(err) throw new gutil.PluginError('webpack', err);
 
@@ -20,12 +42,25 @@ gulp.task('source:es6', function(callback) {
   });
 });
 
+gulp.task('source:es6', false, function() {
 
-gulp.task('source:static', false, (cb)=>{
+  var files = [
+    'src/viewer/**/*.*',
+    'src/viewer/*.*'
+  ];
+
+  return gulp.src(files)
+    .pipe(babel())
+    .pipe(gulp.dest('build/viewer'));
+});
+
+
+gulp.task('source:static', false, ()=>{
 
   let files = [
     '!src/viewer/*.js',
     '!src/viewer/**/*.js',
+    '!src/example/main.js',
     'src/**/*(*.js|*.html|*.stl|*.json|*.xml|*.png|*.jpg|*.svg|*.jpeg|*.gif|*.css)',
     'src/*(*.js|*.html|*.stl|*.json|*.xml|*.png|*.jpg|*.svg|*.jpeg|*.gif|*.css)'
   ];
@@ -35,5 +70,5 @@ gulp.task('source:static', false, (cb)=>{
 });
 
 gulp.task('source', false, (cb)=>{
-  return runSequence(['source:es6','source:static'], cb);
+  return runSequence(['source:es6','source:webpack','source:static'], cb);
 });

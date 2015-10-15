@@ -3,12 +3,11 @@
   "version": "1.2.1",
   "private": true,
   "description": "ThreeJS Viewer for All3DP comparision",
-  "main": "dist/ModelViewer.js",
+  "main": "dist/viewer/ModelViewer.js",
   "scripts": {
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
     "dev": "parallelshell 'gulp dev' 'http-server ./build'",
-    "release": "npm run lint && gulp release",
-    "build": "rimraf dist && mkdir dist && babel -d dist/ src/Viewer"
+    "release": "npm run lint && gulp release"
   },
   "engines": {
     "node": ">= 0.10",
