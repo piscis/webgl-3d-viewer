@@ -1,12 +1,12 @@
-require('./utils/Detector.js');
-require('./loaders/STLLoader.js');
-require('./controls/OrbitControls');
-
 import {max, merge} from 'lodash';
 
 export default class ModelViewer {
 
   constructor(domElm, config={}) {
+
+    require('./utils/Detector.js');
+    require('./loaders/STLLoader.js');
+    require('./controls/OrbitControls');
 
     this.container = domElm;
 
