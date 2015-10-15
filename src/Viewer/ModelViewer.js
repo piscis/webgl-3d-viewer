@@ -203,9 +203,9 @@ export default class ModelViewer {
 
     this._setupCamera();
 
-    var controls = new THREE.OrbitControls( this.camera );
+    var controls = new THREE.OrbitControls( this.camera, this.container );
 
-    controls.rotateSpeed = 0.9;
+    controls.rotateSpeed = 1.9;
     controls.zoomSpeed = 1.2;
     controls.panSpeed = 0.8;
 
@@ -586,6 +586,8 @@ export default class ModelViewer {
     }
 
     this.render();
+
+
     if(this.stats){this.stats.end()}
   }
 
