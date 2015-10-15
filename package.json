@@ -45,12 +45,12 @@
     "require-dir": "^0.3.0",
     "run-sequence": "^1.1.4",
     "vinyl-source-stream": "^1.1.0",
-    "webpack": "^1.12.2"
+    "webpack": "^1.12.2",
+    "style-loader": "^0.12.4",
+    "babel": "^5.8.23",
+    "three": "^0.72.0"
   },
   "dependencies": {
-    "babel": "^5.8.23",
-    "lodash": "^3.10.1",
-    "style-loader": "^0.12.4",
-    "three": "^0.72.0"
+    "lodash": "^3.10.1"
   }
 }
