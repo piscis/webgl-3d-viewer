@@ -1,6 +1,6 @@
 {
   "name": "all3dp-3dviewer",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "private": true,
   "description": "ThreeJS Viewer for All3DP comparision",
   "main": "dist/viewer/ModelViewer.js",

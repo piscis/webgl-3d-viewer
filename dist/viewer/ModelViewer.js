@@ -628,15 +628,12 @@ var ModelViewer = (function () {
     key: 'setModelColorByHexcode',
     value: function setModelColorByHexcode(hexcode) {
 
-      var colorValue = hexcode.replace('#', '0x');
-      var color = new THREE.Color(parseInt(colorValue, 16));
-      this.setModelColor(color);
+      if (hexcode) {
+        var colorValue = hexcode.replace('#', '0x');
+        var color = new THREE.Color(parseInt(colorValue, 16));
+        this.setModelColor(color);
+      }
     }
-
-    // @TODO: implement
-  }, {
-    key: 'setBackgroundColor',
-    value: function setBackgroundColor() {}
   }, {
     key: 'render',
     value: function render() {
