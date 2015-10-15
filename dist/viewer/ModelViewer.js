@@ -58,6 +58,7 @@ var ModelViewer = (function () {
       axis: false,
       stats: null,
       autoRotate: false,
+      dragDrop: false,
       material: true
     };
 
@@ -216,7 +217,7 @@ var ModelViewer = (function () {
         geometry.computeBoundingSphere();
 
         var g = this.model.geometry.boundingSphere.radius;
-        var dist = g * 8;
+        var dist = g * 4;
         var center = geometry.boundingSphere.center;
 
         camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
@@ -501,11 +502,13 @@ var ModelViewer = (function () {
         _this3._onDragOver(ev);
       };
 
-      var dropZone = this.container;
-      dropZone.addEventListener('drop', this._dropListener, false);
+      if (this.config.dragDrop === true) {
+        var dropZone = this.container;
+        dropZone.addEventListener('drop', this._dropListener, false);
 
-      // for Firefox
-      dropZone.addEventListener('dragover', this._dragOverListener, false);
+        // for Firefox
+        dropZone.addEventListener('dragover', this._dragOverListener, false);
+      }
     }
   }, {
     key: '_restoreConfig',
