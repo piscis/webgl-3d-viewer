@@ -180,7 +180,7 @@ export default class ModelViewer {
       geometry.computeBoundingSphere();
 
       var g = this.model.geometry.boundingSphere.radius;
-      var dist= g * 8;
+      var dist= g * 4;
       var center = geometry.boundingSphere.center;
 
       camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
