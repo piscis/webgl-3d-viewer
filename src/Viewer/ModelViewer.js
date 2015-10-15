@@ -559,13 +559,12 @@ export default class ModelViewer {
 
   setModelColorByHexcode(hexcode){
 
-    var colorValue=hexcode.replace( '#','0x' );
-    var color = new THREE.Color(parseInt(colorValue, 16));
-    this.setModelColor(color);
+    if(hexcode) {
+      var colorValue=hexcode.replace( '#','0x' );
+      var color = new THREE.Color(parseInt(colorValue, 16));
+      this.setModelColor(color);
+    }
   }
-
-  // @TODO: implement
-  setBackgroundColor(){}
 
   render(){
 
