@@ -1,13 +1,14 @@
 {
   "name": "all3dp-3dviewer",
-  "version": "1.1.1",
+  "version": "1.2.0",
   "private": true,
   "description": "ThreeJS Viewer for All3DP comparision",
-  "main": "src/viewer/ModelViewer.js",
+  "main": "dist/ModelViewer.js",
   "scripts": {
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
     "dev": "parallelshell 'gulp dev' 'http-server ./build'",
-    "release": "npm run lint && gulp release"
+    "release": "npm run lint && gulp release",
+    "build": "rimraf dist && mkdir dist && babel -d dist/ src/Viewer"
   },
   "engines": {
     "node": ">= 0.10",
@@ -43,14 +44,15 @@
     "mkdirp": "^0.5.1",
     "parallelshell": "^2.0.0",
     "require-dir": "^0.3.0",
+    "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
     "vinyl-source-stream": "^1.1.0",
-    "webpack": "^1.12.2"
+    "webpack": "^1.12.2",
+    "babel": "^5.8.23",
+    "style-loader": "^0.12.4"
   },
   "dependencies": {
-    "babel": "^5.8.23",
     "lodash": "^3.10.1",
-    "style-loader": "^0.12.4",
     "three": "^0.72.0"
   }
 }
