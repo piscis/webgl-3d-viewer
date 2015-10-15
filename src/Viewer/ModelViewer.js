@@ -384,10 +384,13 @@ export default class ModelViewer {
 
     cancelAnimationFrame(this.animationId);
 
-    var objsToRemove = rest(this.scene.children, 1);
-    each(objsToRemove, (object) => {
-      this.scene.remove(object);
-    });
+    if(this.scene != null){
+
+      var objsToRemove = rest(this.scene.children, 1);
+      each(objsToRemove, (object) => {
+        this.scene.remove(object);
+      });
+    }
 
     this.scene = null;
     this.camera = null;
@@ -401,11 +404,14 @@ export default class ModelViewer {
     this.boundingBox = null;
     this.modelWireframe = null;
 
-    // Clear container
-    var elem = this.container;
+    if(this.container != null){
 
-    while (elem.lastChild){
-      elem.removeChild(elem.lastChild);
+      // Clear container
+      var elem = this.container;
+
+      while (elem.lastChild){
+        elem.removeChild(elem.lastChild);
+      }
     }
 
     this.loaded = false;

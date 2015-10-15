@@ -434,10 +434,13 @@ var ModelViewer = (function () {
 
       cancelAnimationFrame(this.animationId);
 
-      var objsToRemove = (0, _lodashArrayRest2['default'])(this.scene.children, 1);
-      (0, _lodashCollectionEach2['default'])(objsToRemove, function (object) {
-        _this2.scene.remove(object);
-      });
+      if (this.scene != null) {
+
+        var objsToRemove = (0, _lodashArrayRest2['default'])(this.scene.children, 1);
+        (0, _lodashCollectionEach2['default'])(objsToRemove, function (object) {
+          _this2.scene.remove(object);
+        });
+      }
 
       this.scene = null;
       this.camera = null;
@@ -451,11 +454,14 @@ var ModelViewer = (function () {
       this.boundingBox = null;
       this.modelWireframe = null;
 
-      // Clear container
-      var elem = this.container;
+      if (this.container != null) {
 
-      while (elem.lastChild) {
-        elem.removeChild(elem.lastChild);
+        // Clear container
+        var elem = this.container;
+
+        while (elem.lastChild) {
+          elem.removeChild(elem.lastChild);
+        }
       }
 
       this.loaded = false;
