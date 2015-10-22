@@ -46,7 +46,7 @@
 
           this.model = '';
           this.modelSamples = {
-            "":   "",
+            "Metatron":  "model/metatron.stl",
             "Snowman":   "model/snowman.stl",
             "3D Benchy": "model/3DBenchy.stl",
             "3D Buddha": "model/buddha_flat_bottom.stl"
@@ -54,6 +54,9 @@
 
         };
         var cfg = new Configuration();
+
+        // Load default stl
+        viewer.load('model/metatron.stl');
 
         gui.addColor(cfg, 'color').onChange(function(colorValue) {
           viewer.setModelColorByHexcode(colorValue);
