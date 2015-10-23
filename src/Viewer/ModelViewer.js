@@ -3,13 +3,13 @@ import merge from 'lodash/object/merge';
 import rest from 'lodash/array/rest';
 import each from 'lodash/collection/each';
 
+import Detector from './utils/Detector';
+import ProgressBar from './utils/ProgressBar';
+import STLLoader from './loaders/STLLoader';
+
 export default class ModelViewer {
 
   constructor(domElm, config={}) {
-
-    require('./utils/Detector.js');
-    require('./loaders/STLLoader.js');
-    require('./controls/OrbitControls');
 
     this.container = domElm;
 
@@ -23,8 +23,34 @@ export default class ModelViewer {
     this.boundingBox = null;
     this.modelWireframe = null;
     this.stats = null;
+    this.group = null;
     this.config = {};
+    this.progressBar = null;
 
+    window.progressBar = this.progressBar;
+
+    // Default configuration params
+    this.controlsConfigDefault = {
+
+      targetRotationX: 0,
+      targetRotationOnMouseDownX: 0,
+
+      targetRotationY:0,
+      targetRotationOnMouseDownY: 0,
+
+      mouseX: 0,
+      mouseXOnMouseDown: 0,
+
+      mouseY: 0,
+      mouseYOnMouseDown: 0,
+
+      windowHalfX: (window.innerWidth / 2),
+      windowHalfY: (window.innerHeight / 2),
+
+      finalRotationY: null
+    };
+
+    // Default viewer configuration
     this.defaultConfig = {
       wireframe: false,
       plane: false,
@@ -39,7 +65,7 @@ export default class ModelViewer {
 
     // Prepare config
     this.config = merge(this.config, this.defaultConfig, config);
-
+    this.controlsConfig = merge({},this.controlsConfigDefault);
 
     if(this.config.stats){
       this.stats = this.config.stats;
@@ -55,14 +81,7 @@ export default class ModelViewer {
 
     // Setup listener
     this._setupListener();
-
-
   }
-
-  getControls(){
-    return this.controls || null;
-  }
-
 
   load(path, cb){
 
@@ -70,9 +89,47 @@ export default class ModelViewer {
       this._unload();
     }
 
+    if(!this.progressBar){
+      this.progressBar = new ProgressBar(this.container);
+    }
+
     cb = cb || function(){};
-    var loader = new THREE.STLLoader();
-    loader.load(path,(geometry)=>{this._initializeGeometry(geometry,cb)});
+    let loader = new THREE.STLLoader();
+    let onLoadCB = (geometry)=>{
+      this._initializeGeometry(geometry,cb)
+    };
+
+    let onProgressCB = (item, loaded, total)=>{
+
+      if(item){
+
+        let progress = Math.round((100*item.loaded/item.total));
+
+        if(progress<0){
+          progress=0;
+        }else if(progress>100){
+          progress=100;
+        }
+
+        this.progressBar.progress = progress;
+
+        if(progress==100){
+          setTimeout(()=>{
+            this.progressBar.hide();
+          },1500);
+        }
+      }
+
+    };
+
+    let onErrorCB = ()=>{
+      this.progressBar.hide();
+    }
+
+    this.progressBar.show();
+
+
+    loader.load(path, onLoadCB, onProgressCB, onErrorCB);
   }
 
   parse(fileContent, cb){
@@ -91,7 +148,7 @@ export default class ModelViewer {
   togglePlane(){
 
     if(this.plane){
-      this.scene.remove(this.plane);
+      this.group.remove(this.plane);
       this.plane = null;
       this.config.plane = false;
     }else{
@@ -102,7 +159,7 @@ export default class ModelViewer {
   toggleModelWireframe(){
 
     if(this.modelWireframe){
-      this.scene.remove(this.modelWireframe);
+      this.group.remove(this.modelWireframe);
       this.modelWireframe = null;
       this.config.wireframe = false;
     }else{
@@ -113,7 +170,7 @@ export default class ModelViewer {
   toggleAxis(){
 
     if(this.axisHelper){
-      this.scene.remove(this.axisHelper);
+      this.group.remove(this.axisHelper);
       this.axisHelper = null;
       this.config.axis = false;
     }else{
@@ -124,7 +181,7 @@ export default class ModelViewer {
   toggleSphere(){
 
     if(this.sphere){
-      this.scene.remove(this.sphere);
+      this.group.remove(this.sphere);
       this.sphere = null;
       this.config.sphere = false;
     }else{
@@ -135,7 +192,7 @@ export default class ModelViewer {
   toggleBoundingBox(){
 
     if(this.boundingBox){
-      this.scene.remove(this.boundingBox);
+      this.group.remove(this.boundingBox);
       this.boundingBox = null;
       this.config.boundingBox = false;
     }else{
@@ -156,10 +213,10 @@ export default class ModelViewer {
     if(this.model){
 
       if(this.config.material){
-        this.scene.remove(this.model);
+        this.group.remove(this.model);
         this.config.material = false;
       }else{
-        this.scene.add(this.model);
+        this.group.add(this.model);
         this.config.material = true;
       }
     }
@@ -187,7 +244,7 @@ export default class ModelViewer {
       camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
       camera.lookAt(center.x,center.y,center.z);
 
-      window.camera = camera;
+      //window.camera = camera;
     }
 
     this.camera = camera;
@@ -195,43 +252,51 @@ export default class ModelViewer {
 
   _setupScene(){
 
-    var scene = new THREE.Scene();
-    scene.add( new THREE.AmbientLight( 0x777777 ) );
+    let scene = new THREE.Scene();
+    let group = new THREE.Group();
+
     this.scene = scene;
+    this.group = group;
+
+    this.scene.add(this.group);
   }
 
   _setupControls(){
 
     this._setupCamera();
 
-    var controls = new THREE.OrbitControls( this.camera, this.container );
-
-    controls.rotateSpeed = 1.9;
-    controls.zoomSpeed = 1.2;
-    controls.panSpeed = 0.8;
-
-    controls.enableZoom = true;
-    controls.enablePan = true;
-
-    controls.enableDamping = true;
-    controls.dampingFactor = 0.3;
-
-    controls.autoRotate = this.config.autoRotate;
-
-    controls.keys = [ 65, 83, 68 ];
-
     if(this.model){
 
-      //var pos =this.model.position;
       var geometry =  this.model.geometry;
       geometry.computeBoundingSphere();
-      controls.target.set(0,0,0 );
-
       var center = geometry.boundingSphere.center;
-      controls.target.set(center.x,center.y,center.z );
-    }
 
-    this.controls = controls;
+      this.camera.lookAt(center);
+
+      let container = this.container;
+      container.removeEventListener( 'mouseup',    this._mouseUpListener, false );
+      container.removeEventListener( 'mousemove',  this._mouseMoveListener, false );
+      container.removeEventListener( 'mousedown',  this._mouseDownListener, false );
+      container.removeEventListener( 'touchstart', this._touchStartListener, false );
+      container.removeEventListener( 'touchmove',  this._touchMoveListener, false );
+
+      this.controlsConfig = merge({},this.controlsConfigDefault);
+
+      // Controls
+      this._mouseDownListener   = (e) => { this._onMouseDown(e) };
+      this._mouseMoveListener   = (e) => { this._onMouseMove(e) };
+      this._mouseUpListener     = (e) => { this._onMouseUp(e) };
+      this._mouseOutListener    = (e) => { this._onMouseOut(e) };
+      this._touchStartListener  = (e) => { this._onTouchStart(e) };
+      this._touchEndListener    = (e) => { this._onTouchEnd(e) };
+      this._touchMoveListener   = (e) => { this._onTouchMove(e) };
+
+      // Mouse / Touch events
+      container.addEventListener( 'mousedown', this._mouseDownListener, false );
+      container.addEventListener( 'touchstart', this._touchStartListener, false );
+      container.addEventListener( 'touchmove', this._touchMoveListener, false );
+
+    }
   }
 
   _setupRenderer(){
@@ -256,16 +321,18 @@ export default class ModelViewer {
 
   _setupLights(){
 
-    var light1 = new THREE.DirectionalLight( 0xffffff );
-    light1.position.set( 1, 1, 1 );
-    this.scene.add( light1 );
+    // Ambient
+    this.scene.add( new THREE.AmbientLight( 0xcccccc ) );
 
-    var light2 = new THREE.DirectionalLight( 0x002288 );
-    light2.position.set( -1, -1, -1 );
-    this.scene.add( light2 );
+    // Light 3
+    var light = new THREE.SpotLight( 0xcccccc );
+    light.angle = 1.7;
+    light.position.set(100,500,100);
+    var target = new THREE.Object3D();
+    target.position.set(0,0,0);
+    light.target = target;
 
-    var light3 = new THREE.AmbientLight( 0x222222 );
-    this.scene.add( light3 );
+    this.scene.add( light );
   }
 
   _setupAxisHelper(){
@@ -273,7 +340,7 @@ export default class ModelViewer {
     if(this.model){
 
       if(this.axisHelper){
-        this.scene.remove(this.axisHelper);
+        this.group.remove(this.axisHelper);
       }
 
       // Get max dimention and add 50% overlap for plane
@@ -291,7 +358,7 @@ export default class ModelViewer {
       axisHelper.position.z = n.boundingSphere.center.z;
 
       this.axisHelper = axisHelper;
-      this.scene.add( this.axisHelper );
+      this.group.add( this.axisHelper );
       this.config.axis = true;
     }
   }
@@ -301,7 +368,7 @@ export default class ModelViewer {
     if(this.model){
 
       if(this.plane){
-        this.scene.remove(this.plane);
+        this.group.remove(this.plane);
       }
 
       // Getmax dimention and add 10% overlap for plane
@@ -319,7 +386,7 @@ export default class ModelViewer {
       plane.position.z = n.boundingSphere.center.z
 
       this.plane = plane;
-      this.scene.add(this.plane);
+      this.group.add(this.plane);
       this.config.plane = true;
     }
   }
@@ -329,7 +396,7 @@ export default class ModelViewer {
     if(this.model) {
 
       if (this.sphere) {
-        this.scene.remove(this.sphere);
+        this.group.remove(this.sphere);
       }
 
       var n = this.model.geometry;
@@ -352,7 +419,7 @@ export default class ModelViewer {
       sphere.position.z = n.boundingSphere.center.z
 
       this.sphere = sphere;
-      this.scene.add(this.sphere);
+      this.group.add(this.sphere);
       this.config.sphere = true;
     }
   }
@@ -362,7 +429,7 @@ export default class ModelViewer {
     if(this.model){
 
       if(this.boundingBox){
-        this.scene.remove(this.boundingBox);
+        this.group.remove(this.boundingBox);
       }
 
       var wireframe = new THREE.WireframeGeometry( this.model.geometry );
@@ -375,7 +442,7 @@ export default class ModelViewer {
 
       this.boundingBox = new THREE.BoxHelper( line );
 
-      this.scene.add( this.boundingBox );
+      this.group.add( this.boundingBox );
       this.config.boundingBox = true;
     }
   }
@@ -386,13 +453,20 @@ export default class ModelViewer {
 
     if(this.scene != null){
 
-      var objsToRemove = rest(this.scene.children, 1);
-      each(objsToRemove, (object) => {
+      var objsToRemoveFromGroup = rest(this.group.children, 1);
+      each(objsToRemoveFromGroup, (object) => {
+        this.group.remove(object);
+      });
+
+      var objsToRemoveFromScene = rest(this.scene.children, 1);
+      each(objsToRemoveFromScene, (object) => {
         this.scene.remove(object);
       });
+
     }
 
     this.scene = null;
+    this.group = null;
     this.camera = null;
     this.model = null;
     this.controls = null;
@@ -419,6 +493,7 @@ export default class ModelViewer {
     // Remove listener
     window.removeEventListener('resize',this._resizeListener,false);
     this._resizeListener=null;
+
   }
 
   _setupModelWireframe(){
@@ -426,34 +501,26 @@ export default class ModelViewer {
     if(this.model){
 
       if(this.modelWireframe){
-        this.scene.remove(this.modelWireframe);
+        this.group.remove(this.modelWireframe);
       }
 
-      var material  = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 200, wireframe: true } );
+      var material  = new THREE.MeshPhongMaterial( { color: 0xffffff, specular: 0x111111, shininess: 20, wireframe: true } );
 
       var mesh = this.model.clone();
       mesh.material = material;
       this.modelWireframe = mesh;
-      this.scene.add(mesh);
+      this.group.add(mesh);
       this.config.wireframe = true;
     }
   }
 
   _setupListener() {
 
-    this._resizeListener = (ev)=>{
-      this._onWindowResize(ev);
-    };
+    this._resizeListener = (ev)=>{ this._onWindowResize(ev); };
+    this._dropListener = (ev)=>{ this._onDrop(ev); };
+    this._dragOverListener = (ev)=>{ this._onDragOver(ev); };
 
     window.addEventListener('resize', this._resizeListener, false);
-
-    this._dropListener = (ev)=>{
-      this._onDrop(ev);
-    };
-
-    this._dragOverListener = (ev)=>{
-      this._onDragOver(ev);
-    };
 
     if(this.config.dragDrop === true) {
       var dropZone = this.container;
@@ -462,6 +529,7 @@ export default class ModelViewer {
       // for Firefox
       dropZone.addEventListener('dragover', this._dragOverListener, false);
     }
+
   }
 
   _restoreConfig(){
@@ -485,7 +553,7 @@ export default class ModelViewer {
 
     n.applyMatrix((new THREE.Matrix4).makeRotationX(-Math.PI/2));
 
-    var material = new THREE.MeshPhongMaterial( { color: 0xb3b3b3, specular: 0x111111, shininess: 200 } );
+    var material = new THREE.MeshPhongMaterial( { color: 0xb3b3b3, specular: 0x111111, shininess: 20 } );
     var mesh = new THREE.Mesh( geometry, material );
 
     mesh.castShadow = true;
@@ -494,7 +562,7 @@ export default class ModelViewer {
     this.model = mesh;
 
     if(this.config.material){
-      this.scene.add(this.model);
+      this.group.add(this.model);
     }
 
     this._setupControls();
@@ -521,6 +589,14 @@ export default class ModelViewer {
       if(this.renderer){
         this.renderer.setSize( width, height );
       }
+
+      ['controlsConfig', 'controlsConfigDefault'].forEach((key)=>{
+
+        if(this.hasOwnProperty(key)){
+          this[key].windowHalfX = (window.innerWidth / 2);
+          this[key].windowHalfY = (window.innerHeight / 2);
+        }
+      })
     }
   }
 
@@ -559,6 +635,115 @@ export default class ModelViewer {
     e.preventDefault();
   }
 
+
+  _onMouseDown(e){
+
+    e.preventDefault();
+
+    let container = this.container;
+    let cfg = this.controlsConfig;
+
+
+    if(container) {
+
+      container.addEventListener('mousemove', this._mouseMoveListener, false);
+      container.addEventListener('mouseup', this._mouseUpListener, false);
+      container.addEventListener('mouseout', this._mouseOutListener, false);
+
+      cfg.mouseXOnMouseDown = e.clientX - cfg.windowHalfX;
+      cfg.targetRotationOnMouseDownX = cfg.targetRotationX;
+
+      cfg.mouseYOnMouseDown = e.clientY - cfg.windowHalfY;
+      cfg.targetRotationOnMouseDownY = cfg.targetRotationY;
+    }
+
+  }
+
+  _onMouseMove(e){
+
+    let cfg = this.controlsConfig;
+
+    cfg.mouseX = e.clientX - cfg.windowHalfX;
+    cfg.mouseY = e.clientY - cfg.windowHalfY;
+
+    cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.02;
+    cfg.targetRotationX = cfg.targetRotationOnMouseDownX + (cfg.mouseX - cfg.mouseXOnMouseDown) * 0.02;
+  }
+
+
+  _onMouseUp(e){
+
+    let container = this.container;
+    let cfg = this.controlsConfig;
+
+    if(container){
+      container.removeEventListener( 'mousemove', this._mouseMoveListener, false );
+      container.removeEventListener( 'mouseup', this._mouseUpListener, false );
+      container.removeEventListener( 'mouseout', this._mouseOutListener, false );
+    }
+  }
+
+  _onMouseOut(e){
+
+    let container = this.container;
+
+    if(container) {
+      container.removeEventListener('mousemove', this._mouseMoveListener, false);
+      container.removeEventListener('mouseup', this._mouseUpListener, false);
+      container.removeEventListener('mouseout', this._mouseOutListener, false);
+    }
+  }
+
+  _onTouchStart(e){
+
+    if ( e.touches.length == 1 ) {
+
+      e.preventDefault();
+
+      let cfg = this.controlsConfig;
+
+      cfg.mouseXOnMouseDown = e.touches[ 0 ].pageX - cfg.windowHalfX;
+      cfg.targetRotationOnMouseDownX = cfg.targetRotationX;
+
+      cfg.mouseYOnMouseDown = e.touches[ 0 ].pageY - cfg.windowHalfY;
+      cfg.targetRotationOnMouseDownY = cfg.targetRotationY;
+
+    }
+  }
+
+  _onTouchEnd(e){
+
+    if ( e.touches.length == 1 ) {
+
+      e.preventDefault();
+
+      let cfg = this.controlsConfig;
+
+      cfg.mouseX = e.touches[ 0 ].pageX - cfg.windowHalfX;
+      cfg.targetRotationX = cfg.targetRotationOnMouseDownX + ( cfg.mouseX - cfg.mouseXOnMouseDown ) * 0.05;
+
+      cfg.mouseY = e.touches[ 0 ].pageY - cfg.windowHalfY;
+      cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
+
+    }
+  }
+
+  _onTouchMove(e){
+
+    if ( e.touches.length == 1 ) {
+
+      e.preventDefault();
+
+      let cfg = this.controlsConfig;
+
+      cfg.mouseX = e.touches[ 0 ].pageX - cfg.windowHalfX;
+      cfg.targetRotationX = cfg.targetRotationOnMouseDownX + ( cfg.mouseX - cfg.mouseXOnMouseDown ) * 0.05;
+
+      cfg.mouseY = e.touches[ 0 ].pageY - cfg.windowHalfY;
+      cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
+    }
+  }
+
   setModelColor(color){
 
     if(this.model){
@@ -577,26 +762,39 @@ export default class ModelViewer {
 
   render(){
 
-    if(this.scene, this.camera){
-
-      this.renderer.render(this.scene, this.camera);
+    //horizontal rotation
+    if(!this.group){
+      return;
     }
+
+    let group = this.group;
+    let cfg = this.controlsConfig;
+
+    group.rotation.y += ( cfg.targetRotationX - group.rotation.y ) * 0.1;
+
+    //vertical rotation
+    cfg.finalRotationY = (cfg.targetRotationY - group.rotation.x);
+    group.rotation.x += cfg.finalRotationY * 0.05;
+
+    this.renderer.render(this.scene, this.camera);
   }
 
 
   animate() {
 
-    if(this.stats){this.stats.begin()}
-    this.animationId = requestAnimationFrame(()=>{ this.animate()});
-
-    if(this.controls){
-      this.controls.update();
+    if(this.stats){
+      this.stats.begin()
     }
+
+    this.animationId = requestAnimationFrame(()=>{
+      this.animate()
+    });
 
     this.render();
 
-
-    if(this.stats){this.stats.end()}
+    if(this.stats){
+      this.stats.end()
+    }
   }
 
   destroy() {
@@ -607,5 +805,6 @@ export default class ModelViewer {
     this.container.removeEventListener('dragover', this._dragOverListener, false);
 
     this.container.remove();
+    this.progressBar.destroy();
   }
 }

@@ -4,7 +4,7 @@
      npm run lint
     
 #### Start development
-    npm run dev
+    npm run develop
     
 #### Start build release
     npm run release

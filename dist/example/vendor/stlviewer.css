@@ -1,6 +1,7 @@
 #stlviewer {
-	width: 50%;
+	width: 99%;
 	height: 98%;
+	margin: auto;
 	min-height: 300px;
 	border: 1px solid grey;
 }

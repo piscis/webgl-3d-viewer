@@ -277,7 +277,8 @@ var ModelViewer = (function () {
 
       var height = this.container.clientHeight;
       var width = this.container.clientWidth;
-      var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+      //var renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+      var renderer = new THREE.CanvasRenderer({ antialias: true, alpha: true });
 
       renderer.setClearColor(0x000000, 0);
       renderer.setPixelRatio(window.devicePixelRatio);
