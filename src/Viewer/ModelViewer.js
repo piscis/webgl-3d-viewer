@@ -6,6 +6,7 @@ import each from 'lodash/collection/each';
 import Detector from './utils/Detector';
 import ProgressBar from './utils/ProgressBar';
 import STLLoader from './loaders/STLLoader';
+import OrbitControls from './controls/OrbitControls';
 
 export default class ModelViewer {
 
@@ -26,8 +27,6 @@ export default class ModelViewer {
     this.group = null;
     this.config = {};
     this.progressBar = null;
-
-    window.progressBar = this.progressBar;
 
     // Default configuration params
     this.controlsConfigDefault = {
@@ -295,6 +294,24 @@ export default class ModelViewer {
       container.addEventListener( 'mousedown', this._mouseDownListener, false );
       container.addEventListener( 'touchstart', this._touchStartListener, false );
       container.addEventListener( 'touchmove', this._touchMoveListener, false );
+
+
+      let controls = new THREE.OrbitControls(this.camera, this.container);
+
+      controls.enableKeys = false;
+      controls.enableRotate = false;
+      controls.enablePan = false;
+      controls.enableDamping = false;
+      controls.enableZoom = true;
+
+      var geometry =  this.model.geometry;
+      geometry.computeBoundingSphere();
+      controls.target.set(0,0,0 );
+
+      var center = geometry.boundingSphere.center;
+      controls.target.set(center.x,center.y,center.z );
+
+      this.controls = controls;
 
     }
   }
@@ -789,6 +806,10 @@ export default class ModelViewer {
     this.animationId = requestAnimationFrame(()=>{
       this.animate()
     });
+
+    if(this.controls){
+      this.controls.update();
+    }
 
     this.render();
 
