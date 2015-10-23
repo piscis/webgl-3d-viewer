@@ -1,7 +1,7 @@
 <html>
   <head>
     <title>STL Viewer</title>
-
+    <link href='http://fonts.googleapis.com/css?family=Roboto:400,100,100italic,300,300ita‌​lic,400italic,500,500italic,700,700italic,900italic,900' rel='stylesheet' type='text/css'>
     <link href="vendor/stlviewer.css" rel="stylesheet">
 
     <script src="vendor/three.js"></script>
@@ -46,17 +46,16 @@
 
           this.model = '';
           this.modelSamples = {
-            "Metatron":  "model/metatron.stl",
-            "Snowman":   "model/snowman.stl",
-            "3D Benchy": "model/3DBenchy.stl",
-            "3D Buddha": "model/buddha_flat_bottom.stl"
+            "Snowman (~200kb)":   "model/snowman.stl",
+            "3D Buddha (~3 MB)": "model/buddha_flat_bottom.stl",
+            "3D Benchy (~11.2MB)": "model/3DBenchy.stl",
+            "Metatron (~35 MB)":  "model/metatron.stl"
           }
-
         };
         var cfg = new Configuration();
 
         // Load default stl
-        viewer.load('model/metatron.stl');
+        viewer.load('model/snowman.stl');
 
         gui.addColor(cfg, 'color').onChange(function(colorValue) {
           viewer.setModelColorByHexcode(colorValue);
@@ -86,9 +85,11 @@
           viewer.toggleAxis();
         });
 
+        /*
         gui.add(cfg, 'autorotate').onChange(function(val){
           viewer.toggleAutoRotate();
         });
+        */
 
         gui.add(cfg, 'material').onChange(function(val){
           viewer.toggleMaterial();
@@ -99,6 +100,8 @@
             viewer.setModelColorByHexcode(cfg.color);
           });
         });
+
+        gui.close();
 
       });
     </script>

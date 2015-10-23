@@ -1,12 +1,15 @@
-#stlviewer {
-	width: 50%;
-	height: 98%;
-	min-height: 300px;
-	border: 1px solid grey;
-}
-
 body {
 	background-color: black;
+	font-family: 'Roboto';
+
+}
+#stlviewer {
+	width: 99%;
+	height: 98%;
+	margin: auto;
+	min-height: 300px;
+	border: 1px solid grey;
+	position: relative;
 }
 
 #message {
@@ -15,4 +18,39 @@ body {
 
 .settings {
 	color: grey;
+}
+
+.progress-bar {
+	display: flex;
+	position: absolute;
+	height: 100%;
+	width: 100%;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	text-align: center;
+	align-items: center;
+	justify-content: center;
+}
+
+.progress-bar--visible {
+	display: flex;
+}
+
+.progress-bar--hidden {
+	display: none;
+}
+
+.progress-bar__container {
+	max-width: 50%;
+	height: 32px;
+	padding-left: 10px;
+	padding-right: 10px;
+	border-radius: 3px;
+	border: 1px solid #cccccc;
+	font-size: 16px;
+	line-height: 32px;
+	background-color: rgba(0,0,0,0.5);
+	color: #cccccc;
 }

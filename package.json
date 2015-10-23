@@ -6,7 +6,7 @@
   "main": "dist/viewer/ModelViewer.js",
   "scripts": {
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
-    "dev": "parallelshell 'gulp dev' 'http-server ./build'",
+    "develop": "parallelshell 'gulp dev' 'http-server ./build'",
     "release": "npm run lint && gulp release"
   },
   "engines": {
