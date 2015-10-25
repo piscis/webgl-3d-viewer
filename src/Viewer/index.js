@@ -92,6 +92,7 @@ export default class Viewer {
 
     if(!this.progressBar){
       this.progressBar = new ProgressBar(this.container);
+      window.progress = this.progressBar;
     }
 
     cb = cb || function(){};
