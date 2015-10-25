@@ -72,12 +72,14 @@ var ProgressBar = (function () {
 
       var elm = this.template(this._config);
 
-      if (this._progressElm) {
+      var domNodes = this._container.getElementsByClassName('viewer__progress-bar');
 
-        var domNodes = this._container.getElementsByClassName('viewer__progress-bar');
+      if (domNodes.length > 0) {
 
         (0, _lodashCollectionEach2['default'])(domNodes, function (node) {
-          node.remove();
+          if (node) {
+            node.remove();
+          }
         });
 
         this._progressElm = null;
