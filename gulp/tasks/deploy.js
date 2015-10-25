@@ -7,7 +7,7 @@ var gulp = gulpHelp(gulpMain);
 
 var ghPages = require('gulp-gh-pages');
 
-gulp.task('deploy-to-gh-pages', {},  function() {
+gulp.task('deploy-to-gh-pages', false,  function() {
 
   let opts = {};
 
