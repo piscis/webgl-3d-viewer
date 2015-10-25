@@ -16,11 +16,11 @@ export default class ProgressBar {
       text: 'Loading: '
     };
     this.template = template(`
-      <div class="progress-bar progress-bar--<%- visibility %>">
-        <div class="progress-bar__container">
-          <span class="progress-bar__text"><%- text %></span>
-          <span class="progress-bar__count"><%- progress %></span>
-          <span class="progress-bar__unit"><%- unit %></span>
+      <div class="viewer__progress-bar viewer__progress-bar--<%- visibility %>">
+        <div class="viewer__progress-bar__container">
+          <span class="viewer__progress-bar__text"><%- text %></span>
+          <span class="viewer__progress-bar__count"><%- progress %></span>
+          <span class="viewer__progress-bar__unit"><%- unit %></span>
         </div>
       </div>
     `.trim());
@@ -32,8 +32,8 @@ export default class ProgressBar {
   show(){
     this._config.visibility = 'visible';
     if(this._progressElm.classList){
-      this._progressElm.classList.remove('progress-bar--hidden');
-      this._progressElm.classList.add('progress-bar--visible');
+      this._progressElm.classList.remove('viewer__progress-bar--hidden');
+      this._progressElm.classList.add('viewer__progress-bar--visible');
     }else {
       this._updateProgress();
     }
@@ -43,8 +43,8 @@ export default class ProgressBar {
     this._config.visibility = 'hidden';
 
     if(this._progressElm.classList){
-      this._progressElm.classList.add('progress-bar--hidden');
-      this._progressElm.classList.remove('progress-bar--visible');
+      this._progressElm.classList.add('viewer__progress-bar--hidden');
+      this._progressElm.classList.remove('viewer__progress-bar--visible');
     }else {
       this._updateProgress();
     }
@@ -57,7 +57,7 @@ export default class ProgressBar {
 
     if(this._progressElm){
 
-      let domNodes = this._container.getElementsByClassName('progress-bar');
+      let domNodes = this._container.getElementsByClassName('viewer__progress-bar');
 
       each(domNodes,(node)=>{
         node.remove();

@@ -17,3 +17,7 @@ gulp.task('release','Start gulp with `gulp release` to create a release build', 
 gulp.task('deploy','Start gulp with `gulp deploy` to create a release build and deploy it to the Github pages repository', (cb)=>{
   return runSequence('release','deploy-to-gh-pages', cb);
 });
+
+gulp.task('tag', 'Create a release tag by typing `gulp tag`', (cb)=>{
+  return runSequence('tag:bump-version','tag:create-version', cb);
+});

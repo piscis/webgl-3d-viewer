@@ -43,36 +43,6 @@ gulp.task('release:example', false, () => {
     .pipe(gulp.dest('dist/example'));
 });
 
-
-gulp.task('release:tag', false, function(){
-
-  return gulp.src('./package.json')
-    .pipe(bump(version))
-    .pipe(gulp.dest('./'))
-    .pipe(git.commit('bumps package version'))
-    .pipe(filter('package.json'))
-    .pipe(tag_version());
-});
-
-gulp.task('release:tag:create-version', false, function(){
-
-  return gulp.src('*')
-    .pipe(prompt.prompt({
-      type: 'checkbox',
-      name: 'bump',
-      message: 'What type of release is it? (Patch: hotfix, Minor: Release, Major: Major release)',
-      choices: ['patch', 'minor', 'major']
-    },function(res){
-
-      if(res.bump.length > 0){
-        version.type = res.bump[0];
-      }
-
-    }));
-});
-
-
-
 gulp.task('release:build', false, (cb)=>{
-  return runSequence(['release:compress','release:viewer','release:example'], 'release:tag:create-version', 'release:tag', cb);
+  return runSequence(['release:compress','release:viewer','release:example'], cb);
 });
