@@ -63,6 +63,7 @@ var Viewer = (function () {
     this.group = null;
     this.config = {};
     this.progressBar = null;
+    this.loaderPath = null;
 
     // Default configuration params
     this.controlsConfigDefault = {
@@ -122,6 +123,12 @@ var Viewer = (function () {
     key: 'load',
     value: function load(path, cb) {
       var _this = this;
+
+      if (this.loaderPath == path) {
+        return false;
+      } else {
+        this.loaderPath = path;
+      }
 
       if (this.loaded) {
         this._unload();
@@ -578,6 +585,7 @@ var Viewer = (function () {
       }
 
       this.loaded = false;
+      this.loaderPath = null;
 
       // Remove listener
       window.removeEventListener('resize', this._resizeListener, false);
