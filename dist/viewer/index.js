@@ -129,6 +129,7 @@ var Viewer = (function () {
 
       if (!this.progressBar) {
         this.progressBar = new _utilsProgressBar2['default'](this.container);
+        window.progress = this.progressBar;
       }
 
       cb = cb || function () {};

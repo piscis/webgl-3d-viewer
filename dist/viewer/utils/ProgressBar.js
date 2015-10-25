@@ -93,9 +93,11 @@ var ProgressBar = (function () {
     key: 'destroy',
     value: function destroy() {
 
-      if (this._progressElm) {
-        this._progressElm.remove();
-      }
+      var domElms = this._container.getElementsByClassName('viewer__progress-bar');
+
+      (0, _lodashCollectionEach2['default'])(domElms, function (node) {
+        node.remove();
+      });
     }
   }, {
     key: 'progress',
