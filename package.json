@@ -1,5 +1,5 @@
 {
-  "name": "stlviewer",
+  "name": "3dviewer",
   "version": "1.2.7",
   "private": true,
   "description": "A ThreeJS STL viewer",
@@ -14,6 +14,20 @@
     "node": ">= 0.10",
     "npm": ">= 2.1"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/piscis/3dviewer"
+  },
+  "bugs": {
+    "url": "https://github.com/piscis/3dviewer/issues"
+  },
+  "keywords": [
+    "ThreeJS",
+    "WebGL",
+    "STL",
+    "Viewer",
+    "3D"
+  ],
   "author": "Alexander Pirsig <self@pirsig.net>",
   "license": "MIT",
   "devDependencies": {
