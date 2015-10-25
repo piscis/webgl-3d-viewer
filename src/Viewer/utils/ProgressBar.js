@@ -54,13 +54,14 @@ export default class ProgressBar {
 
     let elm = this.template(this._config);
 
+    let domNodes = this._container.getElementsByClassName('viewer__progress-bar');
 
-    if(this._progressElm){
+    if(domNodes.length>0){
 
-      let domNodes = this._container.getElementsByClassName('viewer__progress-bar');
-
-      each(domNodes,(node)=>{
-        node.remove();
+      each(domNodes, (node)=>{
+        if(node){
+          node.remove();
+        }
       });
 
       this._progressElm = null;
