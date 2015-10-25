@@ -31,7 +31,7 @@ gulp.task('source:es6', false, function() {
   ];
 
   return gulp.src(files)
-    .pipe(babel())
+    //.pipe(babel())
     .pipe(gulp.dest('build/viewer'));
 });
 
