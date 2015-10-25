@@ -1,8 +1,8 @@
 {
-  "name": "all3dp-3dviewer",
+  "name": "stlviewer",
   "version": "1.2.7",
   "private": true,
-  "description": "ThreeJS Viewer for All3DP comparision",
+  "description": "A ThreeJS STL viewer",
   "main": "dist/viewer",
   "scripts": {
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
@@ -14,7 +14,7 @@
     "node": ">= 0.10",
     "npm": ">= 2.1"
   },
-  "author": "All3DP GmbH",
+  "author": "Alexander Pirsig <self@pirsig.net>",
   "license": "MIT",
   "devDependencies": {
     "autoprefixer-core": "^6.0.1",
