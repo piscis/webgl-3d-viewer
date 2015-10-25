@@ -1,6 +1,6 @@
 {
   "name": "3dviewer",
-  "version": "1.3.3",
+  "version": null,
   "private": true,
   "description": "A ThreeJS STL viewer",
   "main": "dist/viewer",
@@ -52,6 +52,7 @@
     "gulp-help": "^1.6.1",
     "gulp-if": "^2.0.0",
     "gulp-load-plugins": "^0.10.0",
+    "gulp-prompt": "^0.1.2",
     "gulp-rename": "^1.2.2",
     "gulp-size": "^2.0.0",
     "gulp-sourcemaps": "^1.6.0",
