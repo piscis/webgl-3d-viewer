@@ -27,6 +27,7 @@ export default class Viewer {
     this.group = null;
     this.config = {};
     this.progressBar = null;
+    this.loaderPath = null;
 
     // Default configuration params
     this.controlsConfigDefault = {
@@ -85,6 +86,12 @@ export default class Viewer {
   }
 
   load(path, cb){
+
+    if(this.loaderPath==path){
+      return false;
+    }else{
+      this.loaderPath=path;
+    }
 
     if(this.loaded){
       this._unload();
@@ -509,6 +516,7 @@ export default class Viewer {
     }
 
     this.loaded = false;
+    this.loaderPath = null;
 
     // Remove listener
     window.removeEventListener('resize',this._resizeListener,false);
