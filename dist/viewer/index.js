@@ -926,8 +926,11 @@ var Viewer = (function () {
       this.container.removeEventListener('drop', this._dropListener, false);
       this.container.removeEventListener('dragover', this._dragOverListener, false);
 
+      if (this.progressBar) {
+        this.progressBar.destroy();
+      }
+
       this.container.remove();
-      this.progressBar.destroy();
     }
   }]);
 
