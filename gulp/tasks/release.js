@@ -1,8 +1,9 @@
-import gulpMain    from 'gulp';
-import gulpHelp    from 'gulp-help';
+import gulpMain from 'gulp';
+import gulpHelp from 'gulp-help';
+import bump from 'gulp-bump';
 import runSequence from 'run-sequence';
-import source      from 'vinyl-source-stream';
-import uglify      from 'gulp-uglify';
+import source from 'vinyl-source-stream';
+import uglify from 'gulp-uglify';
 
 var gulp = gulpHelp(gulpMain);
 
@@ -36,6 +37,13 @@ gulp.task('release:example', false, () => {
     .pipe(gulp.dest('dist/example'));
 });
 
+
+gulp.task('release:bump-version', false, function(){
+  gulp.src('./package.json')
+    .pipe(bump({type:'patch'}))
+    .pipe(gulp.dest('./'));
+});
+
 gulp.task('release:build', false, (cb)=>{
-  return runSequence(['release:compress','release:viewer','release:example'], cb);
+  return runSequence(['release:compress','release:viewer','release:example'], 'release:bump-version', cb);
 });
