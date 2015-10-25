@@ -37,7 +37,7 @@ var ProgressBar = (function () {
       unit: '%',
       text: 'Loading: '
     };
-    this.template = (0, _lodashStringTemplate2['default'])('\n      <div class="progress-bar progress-bar--<%- visibility %>">\n        <div class="progress-bar__container">\n          <span class="progress-bar__text"><%- text %></span>\n          <span class="progress-bar__count"><%- progress %></span>\n          <span class="progress-bar__unit"><%- unit %></span>\n        </div>\n      </div>\n    '.trim());
+    this.template = (0, _lodashStringTemplate2['default'])('\n      <div class="viewer__progress-bar viewer__progress-bar--<%- visibility %>">\n        <div class="viewer__progress-bar__container">\n          <span class="viewer__progress-bar__text"><%- text %></span>\n          <span class="viewer__progress-bar__count"><%- progress %></span>\n          <span class="viewer__progress-bar__unit"><%- unit %></span>\n        </div>\n      </div>\n    '.trim());
 
     this._config = (0, _lodashObjectMerge2['default'])({}, this._defaultConfig, config);
     this._updateProgress();
@@ -48,8 +48,8 @@ var ProgressBar = (function () {
     value: function show() {
       this._config.visibility = 'visible';
       if (this._progressElm.classList) {
-        this._progressElm.classList.remove('progress-bar--hidden');
-        this._progressElm.classList.add('progress-bar--visible');
+        this._progressElm.classList.remove('viewer__progress-bar--hidden');
+        this._progressElm.classList.add('viewer__progress-bar--visible');
       } else {
         this._updateProgress();
       }
@@ -60,8 +60,8 @@ var ProgressBar = (function () {
       this._config.visibility = 'hidden';
 
       if (this._progressElm.classList) {
-        this._progressElm.classList.add('progress-bar--hidden');
-        this._progressElm.classList.remove('progress-bar--visible');
+        this._progressElm.classList.add('viewer__progress-bar--hidden');
+        this._progressElm.classList.remove('viewer__progress-bar--visible');
       } else {
         this._updateProgress();
       }
@@ -72,12 +72,14 @@ var ProgressBar = (function () {
 
       var elm = this.template(this._config);
 
-      if (this._progressElm) {
+      var domNodes = this._container.getElementsByClassName('viewer__progress-bar');
 
-        var domNodes = this._container.getElementsByClassName('progress-bar');
+      if (domNodes.length > 0) {
 
         (0, _lodashCollectionEach2['default'])(domNodes, function (node) {
-          node.remove();
+          if (node) {
+            node.remove();
+          }
         });
 
         this._progressElm = null;
@@ -93,9 +95,11 @@ var ProgressBar = (function () {
     key: 'destroy',
     value: function destroy() {
 
-      if (this._progressElm) {
-        this._progressElm.remove();
-      }
+      var domElms = this._container.getElementsByClassName('viewer__progress-bar');
+
+      (0, _lodashCollectionEach2['default'])(domElms, function (node) {
+        node.remove();
+      });
     }
   }, {
     key: 'progress',
