@@ -243,8 +243,9 @@ export default class Viewer {
       var dist= g * 4;
       var center = geometry.boundingSphere.center;
 
+
       camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
-      camera.lookAt(center.x,center.y,center.z);
+      camera.lookAt(center.x,center.y/2,center.z);
 
       //window.camera = camera;
     }
@@ -309,10 +310,9 @@ export default class Viewer {
 
       var geometry =  this.model.geometry;
       geometry.computeBoundingSphere();
-      controls.target.set(0,0,0 );
 
       var center = geometry.boundingSphere.center;
-      controls.target.set(center.x,center.y,center.z );
+      controls.target.set(center.x, 0, center.z );
 
       this.controls = controls;
 
@@ -579,6 +579,13 @@ export default class Viewer {
     mesh.castShadow = true;
     mesh.receiveShadow = true;
     mesh.material = material;
+
+    // reset center point
+    var box = new THREE.Box3().setFromObject(mesh);
+    box.center(mesh.position);
+    mesh.position.multiplyScalar(-1);
+
+
     this.model = mesh;
 
     if(this.config.material){
