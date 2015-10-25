@@ -8,7 +8,8 @@
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
     "develop": "parallelshell 'gulp dev' 'webpack-dev-server --content-base ./build'",
     "release": "npm run lint && gulp release",
-    "deploy": "gulp deploy"
+    "deploy": "gulp deploy",
+    "tag": "gulp tag"
   },
   "engines": {
     "node": ">= 0.10",
