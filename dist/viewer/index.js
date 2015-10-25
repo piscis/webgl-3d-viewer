@@ -26,15 +26,27 @@ var _lodashCollectionEach = require('lodash/collection/each');
 
 var _lodashCollectionEach2 = _interopRequireDefault(_lodashCollectionEach);
 
-var ModelViewer = (function () {
-  function ModelViewer(domElm) {
+var _utilsDetector = require('./utils/Detector');
+
+var _utilsDetector2 = _interopRequireDefault(_utilsDetector);
+
+var _utilsProgressBar = require('./utils/ProgressBar');
+
+var _utilsProgressBar2 = _interopRequireDefault(_utilsProgressBar);
+
+var _loadersSTLLoader = require('./loaders/STLLoader');
+
+var _loadersSTLLoader2 = _interopRequireDefault(_loadersSTLLoader);
+
+var _controlsOrbitControls = require('./controls/OrbitControls');
+
+var _controlsOrbitControls2 = _interopRequireDefault(_controlsOrbitControls);
+
+var Viewer = (function () {
+  function Viewer(domElm) {
     var config = arguments.length <= 1 || arguments[1] === undefined ? {} : arguments[1];
 
-    _classCallCheck(this, ModelViewer);
-
-    require('./utils/Detector.js');
-    require('./loaders/STLLoader.js');
-    require('./controls/OrbitControls');
+    _classCallCheck(this, Viewer);
 
     this.container = domElm;
 
@@ -48,8 +60,32 @@ var ModelViewer = (function () {
     this.boundingBox = null;
     this.modelWireframe = null;
     this.stats = null;
+    this.group = null;
     this.config = {};
+    this.progressBar = null;
 
+    // Default configuration params
+    this.controlsConfigDefault = {
+
+      targetRotationX: 0,
+      targetRotationOnMouseDownX: 0,
+
+      targetRotationY: 0,
+      targetRotationOnMouseDownY: 0,
+
+      mouseX: 0,
+      mouseXOnMouseDown: 0,
+
+      mouseY: 0,
+      mouseYOnMouseDown: 0,
+
+      windowHalfX: window.innerWidth / 2,
+      windowHalfY: window.innerHeight / 2,
+
+      finalRotationY: null
+    };
+
+    // Default viewer configuration
     this.defaultConfig = {
       wireframe: false,
       plane: false,
@@ -64,6 +100,7 @@ var ModelViewer = (function () {
 
     // Prepare config
     this.config = (0, _lodashObjectMerge2['default'])(this.config, this.defaultConfig, config);
+    this.controlsConfig = (0, _lodashObjectMerge2['default'])({}, this.controlsConfigDefault);
 
     if (this.config.stats) {
       this.stats = this.config.stats;
@@ -81,12 +118,7 @@ var ModelViewer = (function () {
     this._setupListener();
   }
 
-  _createClass(ModelViewer, [{
-    key: 'getControls',
-    value: function getControls() {
-      return this.controls || null;
-    }
-  }, {
+  _createClass(Viewer, [{
     key: 'load',
     value: function load(path, cb) {
       var _this = this;
@@ -95,11 +127,45 @@ var ModelViewer = (function () {
         this._unload();
       }
 
+      if (!this.progressBar) {
+        this.progressBar = new _utilsProgressBar2['default'](this.container);
+      }
+
       cb = cb || function () {};
       var loader = new THREE.STLLoader();
-      loader.load(path, function (geometry) {
+      var onLoadCB = function onLoadCB(geometry) {
         _this._initializeGeometry(geometry, cb);
-      });
+      };
+
+      var onProgressCB = function onProgressCB(item, loaded, total) {
+
+        if (item) {
+
+          var progress = Math.round(100 * item.loaded / item.total);
+
+          if (progress < 0) {
+            progress = 0;
+          } else if (progress > 100) {
+            progress = 100;
+          }
+
+          _this.progressBar.progress = progress;
+
+          if (progress == 100) {
+            setTimeout(function () {
+              _this.progressBar.hide();
+            }, 1500);
+          }
+        }
+      };
+
+      var onErrorCB = function onErrorCB() {
+        _this.progressBar.hide();
+      };
+
+      this.progressBar.show();
+
+      loader.load(path, onLoadCB, onProgressCB, onErrorCB);
     }
   }, {
     key: 'parse',
@@ -119,7 +185,7 @@ var ModelViewer = (function () {
     value: function togglePlane() {
 
       if (this.plane) {
-        this.scene.remove(this.plane);
+        this.group.remove(this.plane);
         this.plane = null;
         this.config.plane = false;
       } else {
@@ -131,7 +197,7 @@ var ModelViewer = (function () {
     value: function toggleModelWireframe() {
 
       if (this.modelWireframe) {
-        this.scene.remove(this.modelWireframe);
+        this.group.remove(this.modelWireframe);
         this.modelWireframe = null;
         this.config.wireframe = false;
       } else {
@@ -143,7 +209,7 @@ var ModelViewer = (function () {
     value: function toggleAxis() {
 
       if (this.axisHelper) {
-        this.scene.remove(this.axisHelper);
+        this.group.remove(this.axisHelper);
         this.axisHelper = null;
         this.config.axis = false;
       } else {
@@ -155,7 +221,7 @@ var ModelViewer = (function () {
     value: function toggleSphere() {
 
       if (this.sphere) {
-        this.scene.remove(this.sphere);
+        this.group.remove(this.sphere);
         this.sphere = null;
         this.config.sphere = false;
       } else {
@@ -167,7 +233,7 @@ var ModelViewer = (function () {
     value: function toggleBoundingBox() {
 
       if (this.boundingBox) {
-        this.scene.remove(this.boundingBox);
+        this.group.remove(this.boundingBox);
         this.boundingBox = null;
         this.config.boundingBox = false;
       } else {
@@ -190,10 +256,10 @@ var ModelViewer = (function () {
       if (this.model) {
 
         if (this.config.material) {
-          this.scene.remove(this.model);
+          this.group.remove(this.model);
           this.config.material = false;
         } else {
-          this.scene.add(this.model);
+          this.group.add(this.model);
           this.config.material = true;
         }
       }
@@ -223,7 +289,7 @@ var ModelViewer = (function () {
         camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
         camera.lookAt(center.x, center.y, center.z);
 
-        window.camera = camera;
+        //window.camera = camera;
       }
 
       this.camera = camera;
@@ -233,43 +299,82 @@ var ModelViewer = (function () {
     value: function _setupScene() {
 
       var scene = new THREE.Scene();
-      scene.add(new THREE.AmbientLight(0x777777));
+      var group = new THREE.Group();
+
       this.scene = scene;
+      this.group = group;
+
+      this.scene.add(this.group);
     }
   }, {
     key: '_setupControls',
     value: function _setupControls() {
+      var _this2 = this;
 
       this._setupCamera();
 
-      var controls = new THREE.OrbitControls(this.camera, this.container);
-
-      controls.rotateSpeed = 1.9;
-      controls.zoomSpeed = 1.2;
-      controls.panSpeed = 0.8;
-
-      controls.enableZoom = true;
-      controls.enablePan = true;
-
-      controls.enableDamping = true;
-      controls.dampingFactor = 0.3;
-
-      controls.autoRotate = this.config.autoRotate;
-
-      controls.keys = [65, 83, 68];
-
       if (this.model) {
 
-        //var pos =this.model.position;
+        var geometry = this.model.geometry;
+        geometry.computeBoundingSphere();
+        var center = geometry.boundingSphere.center;
+
+        this.camera.lookAt(center);
+
+        var container = this.container;
+        container.removeEventListener('mouseup', this._mouseUpListener, false);
+        container.removeEventListener('mousemove', this._mouseMoveListener, false);
+        container.removeEventListener('mousedown', this._mouseDownListener, false);
+        container.removeEventListener('touchstart', this._touchStartListener, false);
+        container.removeEventListener('touchmove', this._touchMoveListener, false);
+
+        this.controlsConfig = (0, _lodashObjectMerge2['default'])({}, this.controlsConfigDefault);
+
+        // Controls
+        this._mouseDownListener = function (e) {
+          _this2._onMouseDown(e);
+        };
+        this._mouseMoveListener = function (e) {
+          _this2._onMouseMove(e);
+        };
+        this._mouseUpListener = function (e) {
+          _this2._onMouseUp(e);
+        };
+        this._mouseOutListener = function (e) {
+          _this2._onMouseOut(e);
+        };
+        this._touchStartListener = function (e) {
+          _this2._onTouchStart(e);
+        };
+        this._touchEndListener = function (e) {
+          _this2._onTouchEnd(e);
+        };
+        this._touchMoveListener = function (e) {
+          _this2._onTouchMove(e);
+        };
+
+        // Mouse / Touch events
+        container.addEventListener('mousedown', this._mouseDownListener, false);
+        container.addEventListener('touchstart', this._touchStartListener, false);
+        container.addEventListener('touchmove', this._touchMoveListener, false);
+
+        var controls = new THREE.OrbitControls(this.camera, this.container);
+
+        controls.enableKeys = false;
+        controls.enableRotate = false;
+        controls.enablePan = false;
+        controls.enableDamping = false;
+        controls.enableZoom = true;
+
         var geometry = this.model.geometry;
         geometry.computeBoundingSphere();
         controls.target.set(0, 0, 0);
 
         var center = geometry.boundingSphere.center;
         controls.target.set(center.x, center.y, center.z);
-      }
 
-      this.controls = controls;
+        this.controls = controls;
+      }
     }
   }, {
     key: '_setupRenderer',
@@ -277,8 +382,7 @@ var ModelViewer = (function () {
 
       var height = this.container.clientHeight;
       var width = this.container.clientWidth;
-      //var renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
-      var renderer = new THREE.CanvasRenderer({ antialias: true, alpha: true });
+      var renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
 
       renderer.setClearColor(0x000000, 0);
       renderer.setPixelRatio(window.devicePixelRatio);
@@ -297,16 +401,18 @@ var ModelViewer = (function () {
     key: '_setupLights',
     value: function _setupLights() {
 
-      var light1 = new THREE.DirectionalLight(0xffffff);
-      light1.position.set(1, 1, 1);
-      this.scene.add(light1);
+      // Ambient
+      this.scene.add(new THREE.AmbientLight(0xcccccc));
 
-      var light2 = new THREE.DirectionalLight(0x002288);
-      light2.position.set(-1, -1, -1);
-      this.scene.add(light2);
+      // Light 3
+      var light = new THREE.SpotLight(0xcccccc);
+      light.angle = 1.7;
+      light.position.set(100, 500, 100);
+      var target = new THREE.Object3D();
+      target.position.set(0, 0, 0);
+      light.target = target;
 
-      var light3 = new THREE.AmbientLight(0x222222);
-      this.scene.add(light3);
+      this.scene.add(light);
     }
   }, {
     key: '_setupAxisHelper',
@@ -315,7 +421,7 @@ var ModelViewer = (function () {
       if (this.model) {
 
         if (this.axisHelper) {
-          this.scene.remove(this.axisHelper);
+          this.group.remove(this.axisHelper);
         }
 
         // Get max dimention and add 50% overlap for plane
@@ -333,7 +439,7 @@ var ModelViewer = (function () {
         axisHelper.position.z = n.boundingSphere.center.z;
 
         this.axisHelper = axisHelper;
-        this.scene.add(this.axisHelper);
+        this.group.add(this.axisHelper);
         this.config.axis = true;
       }
     }
@@ -344,7 +450,7 @@ var ModelViewer = (function () {
       if (this.model) {
 
         if (this.plane) {
-          this.scene.remove(this.plane);
+          this.group.remove(this.plane);
         }
 
         // Getmax dimention and add 10% overlap for plane
@@ -362,7 +468,7 @@ var ModelViewer = (function () {
         plane.position.z = n.boundingSphere.center.z;
 
         this.plane = plane;
-        this.scene.add(this.plane);
+        this.group.add(this.plane);
         this.config.plane = true;
       }
     }
@@ -373,7 +479,7 @@ var ModelViewer = (function () {
       if (this.model) {
 
         if (this.sphere) {
-          this.scene.remove(this.sphere);
+          this.group.remove(this.sphere);
         }
 
         var n = this.model.geometry;
@@ -400,7 +506,7 @@ var ModelViewer = (function () {
         sphere.position.z = n.boundingSphere.center.z;
 
         this.sphere = sphere;
-        this.scene.add(this.sphere);
+        this.group.add(this.sphere);
         this.config.sphere = true;
       }
     }
@@ -411,7 +517,7 @@ var ModelViewer = (function () {
       if (this.model) {
 
         if (this.boundingBox) {
-          this.scene.remove(this.boundingBox);
+          this.group.remove(this.boundingBox);
         }
 
         var wireframe = new THREE.WireframeGeometry(this.model.geometry);
@@ -424,26 +530,32 @@ var ModelViewer = (function () {
 
         this.boundingBox = new THREE.BoxHelper(line);
 
-        this.scene.add(this.boundingBox);
+        this.group.add(this.boundingBox);
         this.config.boundingBox = true;
       }
     }
   }, {
     key: '_unload',
     value: function _unload() {
-      var _this2 = this;
+      var _this3 = this;
 
       cancelAnimationFrame(this.animationId);
 
       if (this.scene != null) {
 
-        var objsToRemove = (0, _lodashArrayRest2['default'])(this.scene.children, 1);
-        (0, _lodashCollectionEach2['default'])(objsToRemove, function (object) {
-          _this2.scene.remove(object);
+        var objsToRemoveFromGroup = (0, _lodashArrayRest2['default'])(this.group.children, 1);
+        (0, _lodashCollectionEach2['default'])(objsToRemoveFromGroup, function (object) {
+          _this3.group.remove(object);
+        });
+
+        var objsToRemoveFromScene = (0, _lodashArrayRest2['default'])(this.scene.children, 1);
+        (0, _lodashCollectionEach2['default'])(objsToRemoveFromScene, function (object) {
+          _this3.scene.remove(object);
         });
       }
 
       this.scene = null;
+      this.group = null;
       this.camera = null;
       this.model = null;
       this.controls = null;
@@ -478,36 +590,34 @@ var ModelViewer = (function () {
       if (this.model) {
 
         if (this.modelWireframe) {
-          this.scene.remove(this.modelWireframe);
+          this.group.remove(this.modelWireframe);
         }
 
-        var material = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0x111111, shininess: 200, wireframe: true });
+        var material = new THREE.MeshPhongMaterial({ color: 0xffffff, specular: 0x111111, shininess: 20, wireframe: true });
 
         var mesh = this.model.clone();
         mesh.material = material;
         this.modelWireframe = mesh;
-        this.scene.add(mesh);
+        this.group.add(mesh);
         this.config.wireframe = true;
       }
     }
   }, {
     key: '_setupListener',
     value: function _setupListener() {
-      var _this3 = this;
+      var _this4 = this;
 
       this._resizeListener = function (ev) {
-        _this3._onWindowResize(ev);
+        _this4._onWindowResize(ev);
+      };
+      this._dropListener = function (ev) {
+        _this4._onDrop(ev);
+      };
+      this._dragOverListener = function (ev) {
+        _this4._onDragOver(ev);
       };
 
       window.addEventListener('resize', this._resizeListener, false);
-
-      this._dropListener = function (ev) {
-        _this3._onDrop(ev);
-      };
-
-      this._dragOverListener = function (ev) {
-        _this3._onDragOver(ev);
-      };
 
       if (this.config.dragDrop === true) {
         var dropZone = this.container;
@@ -551,7 +661,7 @@ var ModelViewer = (function () {
 
       n.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
 
-      var material = new THREE.MeshPhongMaterial({ color: 0xb3b3b3, specular: 0x111111, shininess: 200 });
+      var material = new THREE.MeshPhongMaterial({ color: 0xb3b3b3, specular: 0x111111, shininess: 20 });
       var mesh = new THREE.Mesh(geometry, material);
 
       mesh.castShadow = true;
@@ -560,7 +670,7 @@ var ModelViewer = (function () {
       this.model = mesh;
 
       if (this.config.material) {
-        this.scene.add(this.model);
+        this.group.add(this.model);
       }
 
       this._setupControls();
@@ -574,6 +684,7 @@ var ModelViewer = (function () {
   }, {
     key: '_onWindowResize',
     value: function _onWindowResize() {
+      var _this5 = this;
 
       if (this.container) {
 
@@ -588,6 +699,14 @@ var ModelViewer = (function () {
         if (this.renderer) {
           this.renderer.setSize(width, height);
         }
+
+        ['controlsConfig', 'controlsConfigDefault'].forEach(function (key) {
+
+          if (_this5.hasOwnProperty(key)) {
+            _this5[key].windowHalfX = window.innerWidth / 2;
+            _this5[key].windowHalfY = window.innerHeight / 2;
+          }
+        });
       }
     }
   }, {
@@ -627,6 +746,116 @@ var ModelViewer = (function () {
       e.preventDefault();
     }
   }, {
+    key: '_onMouseDown',
+    value: function _onMouseDown(e) {
+
+      e.preventDefault();
+
+      var container = this.container;
+      var cfg = this.controlsConfig;
+
+      if (container) {
+
+        container.addEventListener('mousemove', this._mouseMoveListener, false);
+        container.addEventListener('mouseup', this._mouseUpListener, false);
+        container.addEventListener('mouseout', this._mouseOutListener, false);
+
+        cfg.mouseXOnMouseDown = e.clientX - cfg.windowHalfX;
+        cfg.targetRotationOnMouseDownX = cfg.targetRotationX;
+
+        cfg.mouseYOnMouseDown = e.clientY - cfg.windowHalfY;
+        cfg.targetRotationOnMouseDownY = cfg.targetRotationY;
+      }
+    }
+  }, {
+    key: '_onMouseMove',
+    value: function _onMouseMove(e) {
+
+      var cfg = this.controlsConfig;
+
+      cfg.mouseX = e.clientX - cfg.windowHalfX;
+      cfg.mouseY = e.clientY - cfg.windowHalfY;
+
+      cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.02;
+      cfg.targetRotationX = cfg.targetRotationOnMouseDownX + (cfg.mouseX - cfg.mouseXOnMouseDown) * 0.02;
+    }
+  }, {
+    key: '_onMouseUp',
+    value: function _onMouseUp(e) {
+
+      var container = this.container;
+      var cfg = this.controlsConfig;
+
+      if (container) {
+        container.removeEventListener('mousemove', this._mouseMoveListener, false);
+        container.removeEventListener('mouseup', this._mouseUpListener, false);
+        container.removeEventListener('mouseout', this._mouseOutListener, false);
+      }
+    }
+  }, {
+    key: '_onMouseOut',
+    value: function _onMouseOut(e) {
+
+      var container = this.container;
+
+      if (container) {
+        container.removeEventListener('mousemove', this._mouseMoveListener, false);
+        container.removeEventListener('mouseup', this._mouseUpListener, false);
+        container.removeEventListener('mouseout', this._mouseOutListener, false);
+      }
+    }
+  }, {
+    key: '_onTouchStart',
+    value: function _onTouchStart(e) {
+
+      if (e.touches.length == 1) {
+
+        e.preventDefault();
+
+        var cfg = this.controlsConfig;
+
+        cfg.mouseXOnMouseDown = e.touches[0].pageX - cfg.windowHalfX;
+        cfg.targetRotationOnMouseDownX = cfg.targetRotationX;
+
+        cfg.mouseYOnMouseDown = e.touches[0].pageY - cfg.windowHalfY;
+        cfg.targetRotationOnMouseDownY = cfg.targetRotationY;
+      }
+    }
+  }, {
+    key: '_onTouchEnd',
+    value: function _onTouchEnd(e) {
+
+      if (e.touches.length == 1) {
+
+        e.preventDefault();
+
+        var cfg = this.controlsConfig;
+
+        cfg.mouseX = e.touches[0].pageX - cfg.windowHalfX;
+        cfg.targetRotationX = cfg.targetRotationOnMouseDownX + (cfg.mouseX - cfg.mouseXOnMouseDown) * 0.05;
+
+        cfg.mouseY = e.touches[0].pageY - cfg.windowHalfY;
+        cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
+      }
+    }
+  }, {
+    key: '_onTouchMove',
+    value: function _onTouchMove(e) {
+
+      if (e.touches.length == 1) {
+
+        e.preventDefault();
+
+        var cfg = this.controlsConfig;
+
+        cfg.mouseX = e.touches[0].pageX - cfg.windowHalfX;
+        cfg.targetRotationX = cfg.targetRotationOnMouseDownX + (cfg.mouseX - cfg.mouseXOnMouseDown) * 0.05;
+
+        cfg.mouseY = e.touches[0].pageY - cfg.windowHalfY;
+        cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
+      }
+    }
+  }, {
     key: 'setModelColor',
     value: function setModelColor(color) {
 
@@ -648,21 +877,33 @@ var ModelViewer = (function () {
     key: 'render',
     value: function render() {
 
-      if ((this.scene, this.camera)) {
-
-        this.renderer.render(this.scene, this.camera);
+      //horizontal rotation
+      if (!this.group) {
+        return;
       }
+
+      var group = this.group;
+      var cfg = this.controlsConfig;
+
+      group.rotation.y += (cfg.targetRotationX - group.rotation.y) * 0.1;
+
+      //vertical rotation
+      cfg.finalRotationY = cfg.targetRotationY - group.rotation.x;
+      group.rotation.x += cfg.finalRotationY * 0.05;
+
+      this.renderer.render(this.scene, this.camera);
     }
   }, {
     key: 'animate',
     value: function animate() {
-      var _this4 = this;
+      var _this6 = this;
 
       if (this.stats) {
         this.stats.begin();
       }
+
       this.animationId = requestAnimationFrame(function () {
-        _this4.animate();
+        _this6.animate();
       });
 
       if (this.controls) {
@@ -685,11 +926,12 @@ var ModelViewer = (function () {
       this.container.removeEventListener('dragover', this._dragOverListener, false);
 
       this.container.remove();
+      this.progressBar.destroy();
     }
   }]);
 
-  return ModelViewer;
+  return Viewer;
 })();
 
-exports['default'] = ModelViewer;
+exports['default'] = Viewer;
 module.exports = exports['default'];
