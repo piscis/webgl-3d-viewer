@@ -37,16 +37,23 @@ THREE.STLLoader.prototype = {
 
   constructor: THREE.STLLoader,
 
-  load: function load(url, onLoad, onProgress, onError) {
+  load: function load(url, onLoad, onProgress, onError, onParseStart, onParseEnd) {
 
     var scope = this;
+    var onParseStart = onParseStart || function () {};
+    var onParseEnd = onParseEnd || function () {};
 
     var loader = new THREE.XHRLoader(scope.manager);
     loader.setCrossOrigin(this.crossOrigin);
     loader.setResponseType('arraybuffer');
     loader.load(url, function (text) {
 
-      onLoad(scope.parse(text));
+      onParseStart();
+      setTimeout(function () {
+        var geometry = scope.parse(text);
+        onLoad(geometry);
+        onParseEnd();
+      }, 1000);
     }, onProgress, onError);
   },
 

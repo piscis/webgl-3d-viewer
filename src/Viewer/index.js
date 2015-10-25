@@ -8,7 +8,7 @@ import ProgressBar from './utils/ProgressBar';
 import STLLoader from './loaders/STLLoader';
 import OrbitControls from './controls/OrbitControls';
 
-export default class ModelViewer {
+export default class Viewer {
 
   constructor(domElm, config={}) {
 
@@ -49,6 +49,7 @@ export default class ModelViewer {
       finalRotationY: null
     };
 
+
     // Default viewer configuration
     this.defaultConfig = {
       wireframe: false,
@@ -61,6 +62,7 @@ export default class ModelViewer {
       dragDrop: false,
       material: true
     };
+
 
     // Prepare config
     this.config = merge(this.config, this.defaultConfig, config);
