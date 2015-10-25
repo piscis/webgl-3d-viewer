@@ -13,3 +13,7 @@ gulp.task('dev','Start gulp with `gulp dev` to start developing', (cb)=>{
 gulp.task('release','Start gulp with `gulp release` to create a release build', (cb)=>{
   return runSequence(['clean:build','clean:dist'],'source','release:build', cb);
 });
+
+gulp.task('deploy','Start gulp with `gulp deploy` to create a release build and deploy it to the Github pages repository', (cb)=>{
+  return runSequence('release', cb);
+});
