@@ -9,7 +9,8 @@
     "develop": "parallelshell 'gulp dev' 'webpack-dev-server --content-base ./build'",
     "release": "npm run lint && gulp release",
     "deploy": "gulp deploy",
-    "tag": "gulp tag"
+    "tag": "gulp tag",
+    "dist": "git push origin && git push all3dp && git push origin --tags && git push all3dp --tags"
   },
   "engines": {
     "node": ">= 0.10",
