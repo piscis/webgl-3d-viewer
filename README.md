@@ -1,12 +1,14 @@
-# 3D Viewer
+## 3D Viewer
 
-Visit the [Demo](https://piscis.github.io/3dviewer/example/)
+A ThreeJS WebGL STL viewer with basic mouse and touch controls. Visit the [Demo](https://piscis.github.io/3dviewer/example/) for an example.
 
-#### Lint code
+### How to build
+
+##### Lint code
      npm run lint
     
-#### Start development
+##### Start development
     npm run develop
     
-#### Start build release
+##### Start build release
     npm run release
