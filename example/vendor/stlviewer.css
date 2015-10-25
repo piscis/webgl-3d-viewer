@@ -3,14 +3,6 @@ body {
 	font-family: 'Roboto';
 
 }
-#stlviewer {
-	width: 99%;
-	height: 95%;
-	margin: auto;
-	min-height: 300px;
-	border: 1px solid grey;
-	position: relative;
-}
 
 #message {
 	color:grey;
@@ -21,7 +13,16 @@ body {
 	margin-bottom: 8px;
 }
 
-.progress-bar {
+.viewer {
+	width: 99%;
+	height: 95%;
+	margin: auto;
+	min-height: 300px;
+	border: 1px solid grey;
+	position: relative;
+}
+
+.viewer__progress-bar {
 	display: flex;
 	position: absolute;
 	height: 100%;
@@ -35,15 +36,15 @@ body {
 	justify-content: center;
 }
 
-.progress-bar--visible {
+.viewer__progress-bar--visible {
 	display: flex;
 }
 
-.progress-bar--hidden {
+.viewer__progress-bar--hidden {
 	display: none;
 }
 
-.progress-bar__container {
+.viewer__progress-bar__container {
 	max-width: 50%;
 	height: 32px;
 	padding-left: 10px;

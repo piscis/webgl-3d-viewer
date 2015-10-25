@@ -129,6 +129,7 @@ var Viewer = (function () {
 
       if (!this.progressBar) {
         this.progressBar = new _utilsProgressBar2['default'](this.container);
+        window.progress = this.progressBar;
       }
 
       cb = cb || function () {};
@@ -287,7 +288,7 @@ var Viewer = (function () {
         var center = geometry.boundingSphere.center;
 
         camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
-        camera.lookAt(center.x, center.y, center.z);
+        camera.lookAt(center.x, center.y / 2, center.z);
 
         //window.camera = camera;
       }
@@ -368,10 +369,9 @@ var Viewer = (function () {
 
         var geometry = this.model.geometry;
         geometry.computeBoundingSphere();
-        controls.target.set(0, 0, 0);
 
         var center = geometry.boundingSphere.center;
-        controls.target.set(center.x, center.y, center.z);
+        controls.target.set(center.x, 0, center.z);
 
         this.controls = controls;
       }
@@ -667,6 +667,12 @@ var Viewer = (function () {
       mesh.castShadow = true;
       mesh.receiveShadow = true;
       mesh.material = material;
+
+      // reset center point
+      var box = new THREE.Box3().setFromObject(mesh);
+      box.center(mesh.position);
+      mesh.position.multiplyScalar(-1);
+
       this.model = mesh;
 
       if (this.config.material) {
@@ -925,8 +931,11 @@ var Viewer = (function () {
       this.container.removeEventListener('drop', this._dropListener, false);
       this.container.removeEventListener('dragover', this._dragOverListener, false);
 
+      if (this.progressBar) {
+        this.progressBar.destroy();
+      }
+
       this.container.remove();
-      this.progressBar.destroy();
     }
   }]);
 
