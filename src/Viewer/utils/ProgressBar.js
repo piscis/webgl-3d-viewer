@@ -87,8 +87,10 @@ export default class ProgressBar {
 
   destroy() {
 
-    if(this._progressElm){
-      this._progressElm.remove();
-    }
+    let domElms = this._container.getElementsByClassName('viewer__progress-bar');
+
+    each(domElms,(node)=>{
+      node.remove();
+    });
   }
 }
