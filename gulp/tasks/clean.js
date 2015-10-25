@@ -1,9 +1,7 @@
 import gulpMain from 'gulp';
 import gulpHelp from 'gulp-help';
-import gulpPlugins from 'gulp-load-plugins';
 import del from 'del';
 
-var plugins = gulpPlugins({camelize:true});
 var gulp = gulpHelp(gulpMain);
 
 
