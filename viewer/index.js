@@ -48,7 +48,12 @@ var Viewer = (function () {
 
     _classCallCheck(this, Viewer);
 
-    this.container = domElm;
+    var vElm = document.createElement('div');
+    vElm.style.height = '100%';
+    vElm.style.width = '100%';
+    domElm.appendChild(vElm);
+
+    this.container = vElm;
 
     this.scene = null;
     this.camera = null;
@@ -120,9 +125,6 @@ var Viewer = (function () {
     this._resizeListener = null;
     this._dropListener = null;
     this._dragOverListener = null;
-
-    // Setup listener
-    this._setupListener();
   }
 
   _createClass(Viewer, [{
@@ -132,13 +134,12 @@ var Viewer = (function () {
 
       if (this.loaderPath == path) {
         return false;
-      } else {
-        this.loaderPath = path;
       }
 
-      if (this.loaded) {
-        this._unload();
-      }
+      this._unload();
+
+      // Setup listener
+      this._setupListener();
 
       if (!this.progressBar) {
         this.progressBar = new _utilsProgressBar2['default'](this.container);
@@ -148,6 +149,7 @@ var Viewer = (function () {
       cb = cb || function () {};
       var loader = new THREE.STLLoader();
       var onLoadCB = function onLoadCB(geometry) {
+        _this.loaderPath = path;
         _this._initializeGeometry(geometry, cb);
       };
 
@@ -309,9 +311,6 @@ var Viewer = (function () {
         var center = geometry.boundingSphere.center;
 
         camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
-        camera.lookAt(center.x, center.y / 2, center.z);
-
-        //window.camera = camera;
       }
 
       this.camera = camera;
@@ -336,12 +335,6 @@ var Viewer = (function () {
       this._setupCamera();
 
       if (this.model) {
-
-        var geometry = this.model.geometry;
-        geometry.computeBoundingSphere();
-        var center = geometry.boundingSphere.center;
-
-        this.camera.lookAt(center);
 
         var container = this.container;
         container.removeEventListener('mouseup', this._mouseUpListener, false);
@@ -388,11 +381,9 @@ var Viewer = (function () {
         controls.enableDamping = false;
         controls.enableZoom = true;
 
-        var geometry = this.model.geometry;
-        geometry.computeBoundingSphere();
-
-        var center = geometry.boundingSphere.center;
-        controls.target.set(center.x, 0, center.z);
+        var bb = new THREE.Box3();
+        bb.setFromObject(this.model);
+        bb.center(controls.target);
 
         this.controls = controls;
       }
@@ -610,6 +601,17 @@ var Viewer = (function () {
       // Remove listener
       window.removeEventListener('resize', this._resizeListener, false);
       this._resizeListener = null;
+
+      this.container.removeEventListener('drop', this._dropListener, false);
+      this.container.removeEventListener('dragover', this._dragOverListener, false);
+
+      if (this.progressBar) {
+        this.progressBar.destroy();
+      }
+
+      while (this.container.firstChild) {
+        this.container.removeChild(this.container.firstChild);
+      }
     }
   }, {
     key: '_setupModelWireframe',
@@ -706,6 +708,8 @@ var Viewer = (function () {
       if (this.config.material) {
         this.group.add(this.model);
       }
+
+      this.scene.updateMatrixWorld();
 
       this._setupControls();
 
@@ -955,13 +959,6 @@ var Viewer = (function () {
     value: function destroy() {
 
       this._unload();
-
-      this.container.removeEventListener('drop', this._dropListener, false);
-      this.container.removeEventListener('dragover', this._dragOverListener, false);
-
-      if (this.progressBar) {
-        this.progressBar.destroy();
-      }
 
       this.container.remove();
     }
