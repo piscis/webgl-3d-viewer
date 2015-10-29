@@ -16,6 +16,7 @@ export default class Viewer {
 
     this.scene = null;
     this.camera = null;
+    this.loader = null;
     this.model = null;
     this.controls = null;
     this.plane = null;
@@ -125,7 +126,9 @@ export default class Viewer {
           progress=100;
         }
 
-        this.progressBar.progress = progress;
+        if(this.progressBar){
+          this.progressBar.progress = progress;
+        }
 
         if(progress==100){
           setTimeout(()=>{
@@ -148,7 +151,7 @@ export default class Viewer {
       this.progressBar.show();
     }
 
-    loader.load(path, onLoadCB, onProgressCB, onErrorCB);
+    this.loader = loader.load(path, onLoadCB, onProgressCB, onErrorCB);
   }
 
   parse(fileContent, cb){
@@ -505,6 +508,7 @@ export default class Viewer {
     this.scene = null;
     this.group = null;
     this.camera = null;
+    this.loader = null;
     this.model = null;
     this.controls = null;
     this.plane = null;
