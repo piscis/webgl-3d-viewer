@@ -52,6 +52,7 @@ var Viewer = (function () {
 
     this.scene = null;
     this.camera = null;
+    this.loader = null;
     this.model = null;
     this.controls = null;
     this.plane = null;
@@ -162,7 +163,9 @@ var Viewer = (function () {
             progress = 100;
           }
 
-          _this.progressBar.progress = progress;
+          if (_this.progressBar) {
+            _this.progressBar.progress = progress;
+          }
 
           if (progress == 100) {
             setTimeout(function () {
@@ -184,7 +187,7 @@ var Viewer = (function () {
         this.progressBar.show();
       }
 
-      loader.load(path, onLoadCB, onProgressCB, onErrorCB);
+      this.loader = loader.load(path, onLoadCB, onProgressCB, onErrorCB);
     }
   }, {
     key: 'parse',
@@ -575,6 +578,7 @@ var Viewer = (function () {
       this.scene = null;
       this.group = null;
       this.camera = null;
+      this.loader = null;
       this.model = null;
       this.controls = null;
       this.plane = null;
