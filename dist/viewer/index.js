@@ -103,7 +103,7 @@ var Viewer = (function () {
       autoRotate: false,
       dragDrop: false,
       material: true,
-      fudge: 1.1,
+      fudge: 0.8,
       progressBar: {}
     };
 
@@ -304,14 +304,24 @@ var Viewer = (function () {
 
       if (this.model) {
 
+        /*
         var geometry = this.model.geometry;
         geometry.computeBoundingSphere();
-
-        var g = this.model.geometry.boundingSphere.radius;
+         var g = this.model.geometry.boundingSphere.radius;
         var dist = g * 4;
         var center = geometry.boundingSphere.center;
+        */
 
-        camera.position.set(0, 190, dist * this.config.fudge); // fudge factor so you can see the boundaries
+        var geometry = this.model.geometry;
+        geometry.computeBoundingBox();
+        var vFOV = camera.fov * Math.PI / 180;
+        var ratio = 1 * Math.tan(vFOV / 2);
+        var screen = ratio * (this.container.clientWidth / this.container.clientHeight);
+
+        var size = geometry.boundingBox.max.y;
+        var dist = size / screen / 1;
+
+        camera.position.set(0, 0, dist * this.config.fudge); // fudge factor so you can see the boundaries
       }
 
       this.camera = camera;
