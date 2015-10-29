@@ -35,7 +35,7 @@ gulp.task('tag:bump-version', false, function(){
   return gulp.src('./package.json')
     .pipe(bump(version))
     .pipe(gulp.dest('./'))
-    .pipe(git.commit('bumps package version'))
+    .pipe(git.commit('bump package version'))
     .pipe(filter('package.json'))
     .pipe(tag_version());
 });
