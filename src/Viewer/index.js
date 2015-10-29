@@ -68,7 +68,7 @@ export default class Viewer {
       autoRotate: false,
       dragDrop: false,
       material: true,
-      fudge: 0.8,
+      fudge: 1.0,
       progressBar: {}
     };
 
@@ -259,15 +259,14 @@ export default class Viewer {
 
     if(this.model){
 
-      /*
+
       var geometry = this.model.geometry;
       geometry.computeBoundingSphere();
 
       var g = this.model.geometry.boundingSphere.radius;
       var dist = g * 4;
-      var center = geometry.boundingSphere.center;
-      */
 
+      /*
       var geometry = this.model.geometry;
       geometry.computeBoundingBox();
       var vFOV = camera.fov * Math.PI / 180;
@@ -276,6 +275,7 @@ export default class Viewer {
 
       var size = geometry.boundingBox.max.y;
       var dist = (size/screen) / 1;
+      */
 
       camera.position.set(0, 0, (dist*this.config.fudge)); // fudge factor so you can see the boundaries
     }
