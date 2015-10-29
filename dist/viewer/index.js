@@ -48,7 +48,12 @@ var Viewer = (function () {
 
     _classCallCheck(this, Viewer);
 
-    this.container = domElm;
+    var vElm = document.createElement('div');
+    vElm.style.height = '100%';
+    vElm.style.width = '100%';
+    domElm.appendChild(vElm);
+
+    this.container = vElm;
 
     this.scene = null;
     this.camera = null;
@@ -129,8 +134,6 @@ var Viewer = (function () {
 
       if (this.loaderPath == path) {
         return false;
-      } else {
-        this.loaderPath = path;
       }
 
       this._unload();
@@ -146,6 +149,7 @@ var Viewer = (function () {
       cb = cb || function () {};
       var loader = new THREE.STLLoader();
       var onLoadCB = function onLoadCB(geometry) {
+        _this.loaderPath = path;
         _this._initializeGeometry(geometry, cb);
       };
 
