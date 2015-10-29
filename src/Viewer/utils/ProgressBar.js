@@ -13,14 +13,20 @@ export default class ProgressBar {
       visibility: 'hidden',
       progress: 0,
       unit: '%',
-      text: 'Loading: '
+      text: 'Preparing 3D Preview ',
+      progressText: 'Preparing 3D Preview'
     };
+
     this.template = template(`
       <div class="viewer__progress-bar viewer__progress-bar--<%- visibility %>">
         <div class="viewer__progress-bar__container">
-          <span class="viewer__progress-bar__text"><%- text %></span>
-          <span class="viewer__progress-bar__count"><%- progress %></span>
-          <span class="viewer__progress-bar__unit"><%- unit %></span>
+          <% if(progress > 0) { %>
+            <span class="viewer__progress-bar__text"><%- text %></span>
+            <span class="viewer__progress-bar__count"><%- progress %></span>
+            <span class="viewer__progress-bar__unit"><%- unit %></span>
+          <% } else { %>
+            <span class="viewer__progress-bar__text"><%- progressText %></span>
+          <% } %>
         </div>
       </div>
     `.trim());
