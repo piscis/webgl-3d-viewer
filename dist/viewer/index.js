@@ -307,9 +307,6 @@ var Viewer = (function () {
         var center = geometry.boundingSphere.center;
 
         camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
-        camera.lookAt(center.x, center.y / 2, center.z);
-
-        //window.camera = camera;
       }
 
       this.camera = camera;
@@ -334,12 +331,6 @@ var Viewer = (function () {
       this._setupCamera();
 
       if (this.model) {
-
-        var geometry = this.model.geometry;
-        geometry.computeBoundingSphere();
-        var center = geometry.boundingSphere.center;
-
-        this.camera.lookAt(center);
 
         var container = this.container;
         container.removeEventListener('mouseup', this._mouseUpListener, false);
@@ -386,11 +377,9 @@ var Viewer = (function () {
         controls.enableDamping = false;
         controls.enableZoom = true;
 
-        var geometry = this.model.geometry;
-        geometry.computeBoundingSphere();
-
-        var center = geometry.boundingSphere.center;
-        controls.target.set(center.x, 0, center.z);
+        var bb = new THREE.Box3();
+        bb.setFromObject(this.model);
+        bb.center(controls.target);
 
         this.controls = controls;
       }
@@ -715,6 +704,8 @@ var Viewer = (function () {
       if (this.config.material) {
         this.group.add(this.model);
       }
+
+      this.scene.updateMatrixWorld();
 
       this._setupControls();
 
