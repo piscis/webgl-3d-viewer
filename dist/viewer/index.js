@@ -96,7 +96,8 @@ var Viewer = (function () {
       stats: null,
       autoRotate: false,
       dragDrop: false,
-      material: true
+      material: true,
+      progressBar: {}
     };
 
     // Prepare config
@@ -106,6 +107,10 @@ var Viewer = (function () {
     if (this.config.stats) {
       this.stats = this.config.stats;
     }
+
+    // Init progress
+    this.progressBar = new _utilsProgressBar2['default'](this.container, this.config.progressBar);
+    this.progressBar.show();
 
     // Loading state
     this.loaded = false;
@@ -573,6 +578,11 @@ var Viewer = (function () {
       this.animationId = null;
       this.boundingBox = null;
       this.modelWireframe = null;
+
+      if (this.progressBar) {
+        this.progressBar.destroy();
+        this.progressBar = null;
+      }
 
       if (this.container != null) {
 
