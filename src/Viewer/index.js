@@ -129,7 +129,9 @@ export default class Viewer {
 
         if(progress==100){
           setTimeout(()=>{
-            this.progressBar.hide();
+            if(this.progressBar) {
+              this.progressBar.hide();
+            }
           },1500);
         }
       }
@@ -137,11 +139,14 @@ export default class Viewer {
     };
 
     let onErrorCB = ()=>{
-      this.progressBar.hide();
+      if(this.progressBar){
+        this.progressBar.hide();
+      }
+    };
+
+    if(this.progressBar){
+      this.progressBar.show();
     }
-
-    this.progressBar.show();
-
 
     loader.load(path, onLoadCB, onProgressCB, onErrorCB);
   }
