@@ -103,6 +103,7 @@ var Viewer = (function () {
       autoRotate: false,
       dragDrop: false,
       material: true,
+      fudge: 1.1,
       progressBar: {}
     };
 
@@ -310,7 +311,7 @@ var Viewer = (function () {
         var dist = g * 4;
         var center = geometry.boundingSphere.center;
 
-        camera.position.set(0, 190, dist * 1.1); // fudge factor so you can see the boundaries
+        camera.position.set(0, 190, dist * this.config.fudge); // fudge factor so you can see the boundaries
       }
 
       this.camera = camera;
