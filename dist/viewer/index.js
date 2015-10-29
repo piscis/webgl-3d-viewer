@@ -166,17 +166,23 @@ var Viewer = (function () {
 
           if (progress == 100) {
             setTimeout(function () {
-              _this.progressBar.hide();
+              if (_this.progressBar) {
+                _this.progressBar.hide();
+              }
             }, 1500);
           }
         }
       };
 
       var onErrorCB = function onErrorCB() {
-        _this.progressBar.hide();
+        if (_this.progressBar) {
+          _this.progressBar.hide();
+        }
       };
 
-      this.progressBar.show();
+      if (this.progressBar) {
+        this.progressBar.show();
+      }
 
       loader.load(path, onLoadCB, onProgressCB, onErrorCB);
     }
