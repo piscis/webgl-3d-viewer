@@ -12,7 +12,12 @@ export default class Viewer {
 
   constructor(domElm, config={}) {
 
-    this.container = domElm;
+    const vElm = document.createElement('div');
+    vElm.style.height = '100%';
+    vElm.style.width = '100%';
+    domElm.appendChild(vElm);
+
+    this.container = vElm;
 
     this.scene = null;
     this.camera = null;
@@ -92,8 +97,6 @@ export default class Viewer {
 
     if(this.loaderPath==path){
       return false;
-    }else{
-      this.loaderPath=path;
     }
 
     this._unload();
@@ -109,7 +112,8 @@ export default class Viewer {
     cb = cb || function(){};
     let loader = new THREE.STLLoader();
     let onLoadCB = (geometry)=>{
-      this._initializeGeometry(geometry,cb)
+      this.loaderPath = path;
+      this._initializeGeometry(geometry,cb);
     };
 
     let onProgressCB = (item, loaded, total)=>{
