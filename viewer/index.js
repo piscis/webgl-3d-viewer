@@ -52,6 +52,7 @@ var Viewer = (function () {
 
     this.scene = null;
     this.camera = null;
+    this.loader = null;
     this.model = null;
     this.controls = null;
     this.plane = null;
@@ -63,6 +64,7 @@ var Viewer = (function () {
     this.group = null;
     this.config = {};
     this.progressBar = null;
+    this.loaderPath = null;
 
     // Default configuration params
     this.controlsConfigDefault = {
@@ -95,7 +97,8 @@ var Viewer = (function () {
       stats: null,
       autoRotate: false,
       dragDrop: false,
-      material: true
+      material: true,
+      progressBar: {}
     };
 
     // Prepare config
@@ -105,6 +108,10 @@ var Viewer = (function () {
     if (this.config.stats) {
       this.stats = this.config.stats;
     }
+
+    // Init progress
+    this.progressBar = new _utilsProgressBar2['default'](this.container, this.config.progressBar);
+    this.progressBar.show();
 
     // Loading state
     this.loaded = false;
@@ -122,6 +129,12 @@ var Viewer = (function () {
     key: 'load',
     value: function load(path, cb) {
       var _this = this;
+
+      if (this.loaderPath == path) {
+        return false;
+      } else {
+        this.loaderPath = path;
+      }
 
       if (this.loaded) {
         this._unload();
@@ -150,23 +163,31 @@ var Viewer = (function () {
             progress = 100;
           }
 
-          _this.progressBar.progress = progress;
+          if (_this.progressBar) {
+            _this.progressBar.progress = progress;
+          }
 
           if (progress == 100) {
             setTimeout(function () {
-              _this.progressBar.hide();
+              if (_this.progressBar) {
+                _this.progressBar.hide();
+              }
             }, 1500);
           }
         }
       };
 
       var onErrorCB = function onErrorCB() {
-        _this.progressBar.hide();
+        if (_this.progressBar) {
+          _this.progressBar.hide();
+        }
       };
 
-      this.progressBar.show();
+      if (this.progressBar) {
+        this.progressBar.show();
+      }
 
-      loader.load(path, onLoadCB, onProgressCB, onErrorCB);
+      this.loader = loader.load(path, onLoadCB, onProgressCB, onErrorCB);
     }
   }, {
     key: 'parse',
@@ -557,6 +578,7 @@ var Viewer = (function () {
       this.scene = null;
       this.group = null;
       this.camera = null;
+      this.loader = null;
       this.model = null;
       this.controls = null;
       this.plane = null;
@@ -566,6 +588,11 @@ var Viewer = (function () {
       this.animationId = null;
       this.boundingBox = null;
       this.modelWireframe = null;
+
+      if (this.progressBar) {
+        this.progressBar.destroy();
+        this.progressBar = null;
+      }
 
       if (this.container != null) {
 
@@ -578,6 +605,7 @@ var Viewer = (function () {
       }
 
       this.loaded = false;
+      this.loaderPath = null;
 
       // Remove listener
       window.removeEventListener('resize', this._resizeListener, false);

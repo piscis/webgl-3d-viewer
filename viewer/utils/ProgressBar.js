@@ -35,9 +35,11 @@ var ProgressBar = (function () {
       visibility: 'hidden',
       progress: 0,
       unit: '%',
-      text: 'Loading: '
+      text: 'Preparing 3D Preview ',
+      progressText: 'Preparing 3D Preview'
     };
-    this.template = (0, _lodashStringTemplate2['default'])('\n      <div class="viewer__progress-bar viewer__progress-bar--<%- visibility %>">\n        <div class="viewer__progress-bar__container">\n          <span class="viewer__progress-bar__text"><%- text %></span>\n          <span class="viewer__progress-bar__count"><%- progress %></span>\n          <span class="viewer__progress-bar__unit"><%- unit %></span>\n        </div>\n      </div>\n    '.trim());
+
+    this.template = (0, _lodashStringTemplate2['default'])('\n      <div class="viewer__progress-bar viewer__progress-bar--<%- visibility %>">\n        <div class="viewer__progress-bar__container">\n          <% if(progress > 0) { %>\n            <span class="viewer__progress-bar__text"><%- text %></span>\n            <span class="viewer__progress-bar__count"><%- progress %></span>\n            <span class="viewer__progress-bar__unit"><%- unit %></span>\n          <% } else { %>\n            <span class="viewer__progress-bar__text"><%- progressText %></span>\n          <% } %>\n        </div>\n      </div>\n    '.trim());
 
     this._config = (0, _lodashObjectMerge2['default'])({}, this._defaultConfig, config);
     this._updateProgress();
