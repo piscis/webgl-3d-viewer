@@ -86,9 +86,6 @@ export default class Viewer {
     this._resizeListener = null;
     this._dropListener = null;
     this._dragOverListener = null;
-
-    // Setup listener
-    this._setupListener();
   }
 
   load(path, cb){
@@ -99,9 +96,10 @@ export default class Viewer {
       this.loaderPath=path;
     }
 
-    if(this.loaded){
-      this._unload();
-    }
+    this._unload();
+
+    // Setup listener
+    this._setupListener();
 
     if(!this.progressBar){
       this.progressBar = new ProgressBar(this.container);
@@ -543,6 +541,17 @@ export default class Viewer {
     window.removeEventListener('resize',this._resizeListener,false);
     this._resizeListener=null;
 
+
+    this.container.removeEventListener('drop',     this._dropListener, false);
+    this.container.removeEventListener('dragover', this._dragOverListener, false);
+
+    if(this.progressBar){
+      this.progressBar.destroy();
+    }
+
+    while (this.container.firstChild) {
+      this.container.removeChild(this.container.firstChild);
+    }
   }
 
   _setupModelWireframe(){
@@ -860,13 +869,6 @@ export default class Viewer {
   destroy() {
 
     this._unload();
-
-    this.container.removeEventListener('drop',     this._dropListener, false);
-    this.container.removeEventListener('dragover', this._dragOverListener, false);
-
-    if(this.progressBar){
-      this.progressBar.destroy();
-    }
 
     this.container.remove();
   }
