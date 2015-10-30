@@ -24,11 +24,11 @@
         stats.domElement.style.top = '36px';
         stats.domElement.style.left = '13px';
 
-
         document.body.appendChild( stats.domElement );
 
         var id = "stlviewer";
-        var viewer = new All3DP.ModelViewer(document.getElementById(id),{"stats":stats,"dragDrop":true, "autoRotate":true});
+        var config = {"stats": stats,"dragDrop": true, "autoRotate": true};
+        var viewer = new ModelViewer(document.getElementById(id),config);
 
         window.viewer = viewer;
 
@@ -47,7 +47,8 @@
 
           this.model = '';
           this.modelSamples = {
-            "Snowman (~200kb)": "model/snowman.stl",
+            "Guitar (~160 Kb)": "model/guitar.stl",
+            "Snowman (~200Kb)": "model/snowman.stl",
             "3D Buddha (~3 MB)": "model/buddha_flat_bottom.stl",
             "Tri Lobe (~18.3 MB)": "model/tri_lobe.stl",
             "3D Benchy (~11.2MB)": "model/3DBenchy.stl",
@@ -57,7 +58,7 @@
         var cfg = new Configuration();
 
         // Load default stl
-        viewer.load('model/snowman.stl');
+        viewer.load('model/guitar.stl');
 
         gui.addColor(cfg, 'color').onChange(function(colorValue) {
           viewer.setModelColorByHexcode(colorValue);
@@ -102,6 +103,12 @@
             viewer.setModelColorByHexcode(cfg.color);
           });
         });
+
+        var obj = { "Reload Viewer":function(){
+          viewer.reload();
+        }};
+
+        gui.add(obj,"Reload Viewer");
 
         gui.close();
 
