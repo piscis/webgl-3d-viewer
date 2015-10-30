@@ -508,9 +508,11 @@ var Viewer = (function () {
         maxDimension = Math.ceil(~ ~(maxDimension * 1.50) / 10) * 10;
 
         var axisHelper = new THREE.AxisHelper(maxDimension);
-        axisHelper.position.x = geometry.boundingSphere.center.x;
-        axisHelper.position.y = geometry.boundingSphere.center.y * -1;
-        axisHelper.position.z = geometry.boundingSphere.center.z;
+
+        // reset center point
+        axisHelper.position.x = 0;
+        axisHelper.position.y = 0;
+        axisHelper.position.z = 0;
 
         this.axisHelper = axisHelper;
         this.group.add(this.axisHelper);
@@ -537,9 +539,13 @@ var Viewer = (function () {
         maxDimension = Math.ceil(~ ~(maxDimension * 1.10) / 10) * 10;
 
         var plane = new THREE.GridHelper(maxDimension, 10);
-        plane.position.x = geometry.boundingSphere.center.x;
+
+        // reset center point
+        var box = new THREE.Box3().setFromObject(plane);
+        box.center(plane.position);
+        plane.position.multiplyScalar(-1);
+
         plane.position.y = geometry.boundingSphere.center.y * -1;
-        plane.position.z = geometry.boundingSphere.center.z;
 
         this.plane = plane;
         this.group.add(this.plane);
@@ -610,16 +616,6 @@ var Viewer = (function () {
         var box = new THREE.Box3().setFromObject(line);
         box.center(line.position);
         line.position.multiplyScalar(-1);
-
-        var geometryLine = line.geometry;
-        geometryLine.computeBoundingBox();
-        geometryLine.computeBoundingSphere();
-
-        var center = geometryLine.boundingSphere;
-
-        line.position.x = center.x * -1;
-        line.position.y = center.y * -1;
-        line.position.z = center.z * -1;
 
         this.boundingBox = new THREE.BoxHelper(line);
 
