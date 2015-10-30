@@ -1,6 +1,7 @@
 import gulpMain from 'gulp';
 import gulpHelp from 'gulp-help';
 import bump from 'gulp-bump';
+import tagVersion from 'gulp-tag-version';
 import git from 'gulp-git';
 import filter from 'gulp-filter';
 import prompt from 'gulp-prompt';
@@ -32,5 +33,5 @@ gulp.task('tag:bump-version', false, function() {
     .pipe(gulp.dest('./'))
     .pipe(git.commit('bump package version'))
     .pipe(filter('package.json'))
-    .pipe(tag_version());
+    .pipe(tagVersion());
 });
