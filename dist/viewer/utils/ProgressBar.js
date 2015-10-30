@@ -73,7 +73,6 @@ var ProgressBar = (function () {
     value: function _updateProgress() {
 
       var elm = this.template(this._config);
-
       var domNodes = this._container.getElementsByClassName('viewer__progress-bar');
 
       if (domNodes.length > 0) {
@@ -108,7 +107,7 @@ var ProgressBar = (function () {
     set: function set(progress) {
 
       if (progress) {
-        this._config.progress = parseInt(progress);
+        this._config.progress = parseInt(progress, 10);
         this._updateProgress();
       }
     },

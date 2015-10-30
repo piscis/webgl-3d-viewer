@@ -75,9 +75,6 @@ export default class ViewerFactory {
     this._config = config;
     this._viewer = undefined;
 
-
-    console.log(this.viewer.loaderContent);
-
     if (content) {
       this.viewer.parse(content, cb);
     }else if (path) {

@@ -1,6 +1,3 @@
-import merge from 'lodash/object/merge';
-import OrbitControls from './OrbitControls';
-
 export default class ModelControls {
 
   constructor(container, onData = () => {}) {
