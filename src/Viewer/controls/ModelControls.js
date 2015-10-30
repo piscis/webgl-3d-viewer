@@ -1,5 +1,6 @@
 import merge from 'lodash/object/merge';
 import OrbitControls from './OrbitControls';
+import TWEEN from 'tween.js';
 
 export default class ModelControls {
 
@@ -11,6 +12,8 @@ export default class ModelControls {
 
     // Default configuration params
     this.controlsConfigDefault = {
+
+      startupAnimation: true,
 
       targetRotationX: 0,
       targetRotationOnMouseDownX: 0,
@@ -33,15 +36,22 @@ export default class ModelControls {
     this.controlsConfig = merge({}, this.controlsConfigDefault, config);
 
     this._init();
+
+    if (this.controlsConfig.startupAnimation === true) {
+      this._createStartUpAnimation();
+    }
   }
 
-
-  update() {
+  update(time) {
 
     const group = this.group;
 
     if (this.controls) {
       this.controls.update();
+    }
+
+    if (this.tween) {
+      TWEEN.update(time);
     }
 
     if (group) {
@@ -63,6 +73,35 @@ export default class ModelControls {
     if (this.controls) {
       this.controls.dispose();
     }
+
+    if (this.tween) {
+      TWEEN.remove(this.tween);
+      this.tween = null;
+    }
+  }
+
+  _createStartUpAnimation() {
+
+    const {targetRotationY, targetRotationX} = this.controlsConfig;
+    const self = this;
+
+    const coords = {
+      x: targetRotationX / Math.PI * 180,
+      y: targetRotationY / Math.PI * 180
+    };
+
+    if (this.tween) {
+      TWEEN.remove(this.tween);
+      this.tween = null;
+    }
+
+    this.tween = new TWEEN.Tween(coords)
+      .to({ x: 360, y: 360 }, 5000)
+      .onUpdate(function() {
+        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
+        self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+      })
+      .start();
   }
 
   _init() {
@@ -148,6 +187,11 @@ export default class ModelControls {
     if (container) {
 
       const { clientX, clientY } = evt;
+
+      if (this.tween) {
+        TWEEN.remove(this.tween);
+        this.tween = null;
+      }
 
       container.addEventListener('mousemove', this._mouseMoveListener, false);
       container.addEventListener('mouseup', this._mouseUpListener, false);
