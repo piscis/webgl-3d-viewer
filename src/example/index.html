@@ -27,7 +27,8 @@
         document.body.appendChild( stats.domElement );
 
         var id = "stlviewer";
-        var viewer = new ModelViewer(document.getElementById(id),{"stats":stats,"dragDrop":true, "autoRotate":true});
+        var config = {"stats": stats,"dragDrop": true, "autoRotate": true};
+        var viewer = new ModelViewer(document.getElementById(id),config);
 
         window.viewer = viewer;
 
