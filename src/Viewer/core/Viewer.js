@@ -109,8 +109,6 @@ export default class Viewer {
     let loader = new STLLoader();
     let onLoadCB = (geometry)=>{
 
-      console.log(path);
-
       this.loaderPath = path;
       this._initializeGeometry(geometry, callb);
     };
@@ -170,19 +168,18 @@ export default class Viewer {
     this._initializeGeometry(geometry, callb);
   }
 
-
   enablePlane(state = true) {
 
     const cfgState = this.config.plane;
 
-    if(cfgState !== state){
+    if (cfgState !== state) {
 
       if (this.plane) {
         this.group.remove(this.plane);
         this.plane = null;
       }
 
-      if(state === true) {
+      if (state === true) {
         this._setupPlane();
       }
 
@@ -231,7 +228,7 @@ export default class Viewer {
     return this.config.axis;
   }
 
-  enableSphere(state=true) {
+  enableSphere(state = true) {
 
     const cfgState = this.config.sphere;
 
