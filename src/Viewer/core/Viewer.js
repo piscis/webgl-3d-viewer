@@ -446,7 +446,7 @@ export default class Viewer {
 
       const axisHelper = new THREE.AxisHelper(maxDimension);
       axisHelper.position.x = geometry.boundingSphere.center.x;
-      axisHelper.position.y = 0;
+      axisHelper.position.y = (geometry.boundingSphere.center.y * -1);
       axisHelper.position.z = geometry.boundingSphere.center.z;
 
       this.axisHelper = axisHelper;
@@ -474,7 +474,7 @@ export default class Viewer {
 
       const plane = new THREE.GridHelper(maxDimension, 10);
       plane.position.x = geometry.boundingSphere.center.x;
-      plane.position.y = 0;
+      plane.position.y = (geometry.boundingSphere.center.y * -1);
       plane.position.z = geometry.boundingSphere.center.z;
 
       this.plane = plane;
@@ -503,12 +503,17 @@ export default class Viewer {
       let material = new THREE.MeshBasicMaterial({color: 0x4d635d, wireframe: true});
       let sphere = new THREE.Mesh(geometrySphere, material);
 
-      geometry.computeBoundingBox();
-      geometry.computeBoundingSphere();
+      // reset center point
+      const box = new THREE.Box3().setFromObject(sphere);
+      box.center(sphere.position);
+      sphere.position.multiplyScalar(-1);
 
-      sphere.position.x = geometry.boundingSphere.center.x;
-      sphere.position.y = geometrySphere.boundingSphere.radius / 2;
-      sphere.position.z = geometry.boundingSphere.center.z;
+      geometrySphere.computeBoundingBox();
+      geometrySphere.computeBoundingSphere();
+
+      sphere.position.x = geometrySphere.boundingSphere.center.x;
+      sphere.position.y = geometrySphere.boundingSphere.center.y;
+      sphere.position.z = geometrySphere.boundingSphere.center.z;
 
       this.sphere = sphere;
       this.group.add(this.sphere);
@@ -524,15 +529,18 @@ export default class Viewer {
         this.group.remove(this.boundingBox);
       }
 
-      let wireframe = new THREE.WireframeGeometry( this.model.geometry );
-      let line = new THREE.LineSegments( wireframe );
+      const wireframe = new THREE.WireframeGeometry( this.model.geometry );
+      const line = new THREE.LineSegments( wireframe );
+      const geometry = this.model.geometry;
+      geometry.computeBoundingSphere();
 
       line.material.depthTest = false;
       line.material.opacity = 0.25;
       line.material.transparent = true;
       line.position.x = 0;
+      line.position.y = (geometry.boundingSphere.center.y * -1);
 
-      this.boundingBox = new THREE.BoxHelper( line );
+      this.boundingBox = new THREE.BoxHelper(line);
 
       this.group.add( this.boundingBox );
       this.config.boundingBox = true;
