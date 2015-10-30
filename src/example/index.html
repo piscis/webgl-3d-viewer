@@ -24,11 +24,10 @@
         stats.domElement.style.top = '36px';
         stats.domElement.style.left = '13px';
 
-
         document.body.appendChild( stats.domElement );
 
         var id = "stlviewer";
-        var viewer = new All3DP.ModelViewer(document.getElementById(id),{"stats":stats,"dragDrop":true, "autoRotate":true});
+        var viewer = new ModelViewer(document.getElementById(id),{"stats":stats,"dragDrop":true, "autoRotate":true});
 
         window.viewer = viewer;
 

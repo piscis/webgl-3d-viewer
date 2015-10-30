@@ -1112,4 +1112,11 @@
 
 	} );
 
+	// browserify support
+	if ( typeof module === 'object' ) {
+
+		module.exports = THREE.OrbitControls;
+
+	}
+
 }() );

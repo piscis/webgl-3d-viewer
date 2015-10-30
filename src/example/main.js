@@ -1,2 +1,1 @@
-window.All3DP = window.All3DP || {}
-window.All3DP.ModelViewer = require('./../viewer');
+window.ModelViewer = require('./../viewer');
