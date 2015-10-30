@@ -439,3 +439,9 @@ if (typeof DataView === 'undefined') {
 
   };
 }
+
+// browserify support
+if (typeof module === 'object') {
+
+  module.exports = THREE.STLLoader;
+}
