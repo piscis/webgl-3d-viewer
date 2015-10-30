@@ -123,9 +123,9 @@ var ModelControls = (function () {
         this.tween = null;
       }
 
-      this.tween = new _tweenJs2['default'].Tween(coords).to({ x: 360, y: 360 }, 5000).onUpdate(function () {
-        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
+      this.tween = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).to({ x: 360, y: 360 }, 3000).onUpdate(function () {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       }).start();
     }
   }, {
