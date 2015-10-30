@@ -102,6 +102,12 @@
           });
         });
 
+        var obj = { "Reload Viewer":function(){
+          viewer.reload();
+        }};
+
+        gui.add(obj,"Reload Viewer");
+
         gui.close();
 
       });
