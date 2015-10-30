@@ -96,10 +96,11 @@ export default class ModelControls {
     }
 
     this.tween = new TWEEN.Tween(coords)
-      .to({ x: 360, y: 360 }, 5000)
+      .easing(TWEEN.Easing.Quadratic.In)
+      .to({ x: 360, y: 360 }, 3000)
       .onUpdate(function() {
-        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       })
       .start();
   }
