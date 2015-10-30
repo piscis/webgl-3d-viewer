@@ -5,7 +5,8 @@ import each from 'lodash/collection/each';
 
 import ProgressBar from './../utils/ProgressBar';
 import STLLoader from './../loaders/STLLoader';
-import OrbitControls from './../controls/OrbitControls';
+import ModelControls from './../controls/ModelControls';
+import DragDropControls from './../controls/DragDropControls';
 
 export default class Viewer {
 
@@ -29,28 +30,7 @@ export default class Viewer {
     this.config = {};
     this.progressBar = null;
     this.loaderPath = null;
-
-    // Default configuration params
-    this.controlsConfigDefault = {
-
-      targetRotationX: 0,
-      targetRotationOnMouseDownX: 0,
-
-      targetRotationY: 0,
-      targetRotationOnMouseDownY: 0,
-
-      mouseX: 0,
-      mouseXOnMouseDown: 0,
-
-      mouseY: 0,
-      mouseYOnMouseDown: 0,
-
-      windowHalfX: (window.innerWidth / 2),
-      windowHalfY: (window.innerHeight / 2),
-
-      finalRotationY: null
-    };
-
+    this.loaderContent = null;
 
     // Default viewer configuration
     this.defaultConfig = {
@@ -67,11 +47,10 @@ export default class Viewer {
       progressBar: {}
     };
 
-
     // Prepare config
     this.config = merge(this.config, this.defaultConfig, config);
-    this.controlsConfig = merge({}, this.controlsConfigDefault);
 
+    // Prepare stats
     if (this.config.stats) {
       this.stats = this.config.stats;
     }
@@ -85,8 +64,6 @@ export default class Viewer {
 
     // Listener
     this._resizeListener = null;
-    this._dropListener = null;
-    this._dragOverListener = null;
   }
 
   load(path, cb) {
@@ -102,7 +79,6 @@ export default class Viewer {
 
     if (!this.progressBar) {
       this.progressBar = new ProgressBar(this.container);
-      window.progress = this.progressBar;
     }
 
     let callb = cb || function() { };
@@ -160,11 +136,20 @@ export default class Viewer {
 
     if (this.loaded) {
       this._unload();
+      // Setup listener
+      this._setupListener();
     }
+
+    this.loaderContent = fileContent;
 
     let callb = cb || function() { };
     let loader = new THREE.STLLoader();
     let geometry = loader.parse(fileContent);
+
+    if (this.progressBar) {
+      this.progressBar.hide();
+    }
+
     this._initializeGeometry(geometry, callb);
   }
 
@@ -311,6 +296,60 @@ export default class Viewer {
     return vElm;
   }
 
+
+  setModelColor(color) {
+
+    if (this.model && color) {
+      this.model.material.color = color;
+    }
+  }
+
+  setModelColorByHexcode(hexcode) {
+
+    if (hexcode) {
+      const colorValue = hexcode.replace('#', '0x');
+      const color = new THREE.Color(parseInt(colorValue, 16));
+      this.setModelColor(color);
+    }
+  }
+
+  render() {
+
+    // horizontal rotation
+    if (!this.group) {
+      return;
+    }
+
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  animate() {
+
+    if (this.stats) {
+      this.stats.begin();
+    }
+
+    this.animationId = requestAnimationFrame(()=>{
+      this.animate();
+    });
+
+    if (this.controls) {
+      this.controls.update();
+    }
+
+    this.render();
+
+    if (this.stats) {
+      this.stats.end();
+    }
+  }
+
+  destroy() {
+
+    this._unload();
+    this.container.remove();
+  }
+
   _setupCamera() {
 
     const height = this.container.clientHeight;
@@ -349,43 +388,12 @@ export default class Viewer {
 
     if (this.model) {
 
-      const container = this.container;
-      container.removeEventListener( 'mouseup',    this._mouseUpListener, false );
-      container.removeEventListener( 'mousemove',  this._mouseMoveListener, false );
-      container.removeEventListener( 'mousedown',  this._mouseDownListener, false );
-      container.removeEventListener( 'touchstart', this._touchStartListener, false );
-      container.removeEventListener( 'touchmove',  this._touchMoveListener, false );
+      if (this.controls) {
+        this.controls.destroy();
+        this.controls = null;
+      }
 
-      this.controlsConfig = merge({}, this.controlsConfigDefault);
-
-      // Controls
-      this._mouseDownListener = (e) => { this._onMouseDown(e); };
-      this._mouseMoveListener = (e) => { this._onMouseMove(e); };
-      this._mouseUpListener = (e) => { this._onMouseUp(e); };
-      this._mouseOutListener = (e) => { this._onMouseOut(e); };
-      this._touchStartListener = (e) => { this._onTouchStart(e); };
-      this._touchEndListener = (e) => { this._onTouchEnd(e); };
-      this._touchMoveListener = (e) => { this._onTouchMove(e); };
-
-      // Mouse / Touch events
-      container.addEventListener( 'mousedown', this._mouseDownListener, false );
-      container.addEventListener( 'touchstart', this._touchStartListener, false );
-      container.addEventListener( 'touchmove', this._touchMoveListener, false );
-
-
-      const controls = new OrbitControls(this.camera, this.container);
-
-      controls.enableKeys = false;
-      controls.enableRotate = false;
-      controls.enablePan = false;
-      controls.enableDamping = false;
-      controls.enableZoom = true;
-
-      let bb = new THREE.Box3();
-      bb.setFromObject(this.model);
-      bb.center(controls.target);
-
-      this.controls = controls;
+      this.controls = new ModelControls(this.container, this.camera, this.group);
     }
   }
 
@@ -531,14 +539,25 @@ export default class Viewer {
 
       const wireframe = new THREE.WireframeGeometry( this.model.geometry );
       const line = new THREE.LineSegments( wireframe );
-      const geometry = this.model.geometry;
-      geometry.computeBoundingSphere();
 
       line.material.depthTest = false;
       line.material.opacity = 0.25;
       line.material.transparent = true;
-      line.position.x = 0;
-      line.position.y = (geometry.boundingSphere.center.y * -1);
+
+      // reset center point
+      const box = new THREE.Box3().setFromObject(line);
+      box.center(line.position);
+      line.position.multiplyScalar(-1);
+
+      let geometryLine = line.geometry;
+      geometryLine.computeBoundingBox();
+      geometryLine.computeBoundingSphere();
+
+      const center =  geometryLine.boundingSphere;
+
+      line.position.x = (center.x * -1);
+      line.position.y = (center.y * -1);
+      line.position.z = (center.z * -1);
 
       this.boundingBox = new THREE.BoxHelper(line);
 
@@ -578,13 +597,26 @@ export default class Viewer {
     this.animationId = null;
     this.boundingBox = null;
     this.modelWireframe = null;
+    this.loaderPath = null;
+    this.loaderContent = null;
 
-
+    // Remove progressBar
     if (this.progressBar) {
       this.progressBar.destroy();
       this.progressBar = null;
     }
 
+    // Remove controls
+    if (this.controls) {
+      this.controls.destroy();
+      this.controls = null;
+    }
+
+    // DragDrop controls
+    if (this.ddControls) {
+      this.ddControls.destroy();
+      this.ddControls = null;
+    }
 
     if (this.container !== null) {
 
@@ -603,13 +635,6 @@ export default class Viewer {
     window.removeEventListener('resize', this._resizeListener, false);
     this._resizeListener = null;
 
-
-    this.container.removeEventListener('drop', this._dropListener, false);
-    this.container.removeEventListener('dragover', this._dragOverListener, false);
-
-    if (this.progressBar) {
-      this.progressBar.destroy();
-    }
 
     while (this.container.firstChild) {
       this.container.removeChild(this.container.firstChild);
@@ -637,19 +662,14 @@ export default class Viewer {
   _setupListener() {
 
     this._resizeListener = (evt)=>{ this._onWindowResize(evt); };
-    this._dropListener = (evt)=>{ this._onDrop(evt); };
-    this._dragOverListener = (evt)=>{ return evt.preventDefault(); };
 
     window.addEventListener('resize', this._resizeListener, false);
 
     if (this.config.dragDrop === true) {
-      const dropZone = this.container;
-      dropZone.addEventListener('drop', this._dropListener, false);
-
-      // for Firefox
-      dropZone.addEventListener('dragover', this._dragOverListener, false);
+      this.ddControls = new DragDropControls(this.container, (result) => {
+        this.parse(result);
+      });
     }
-
   }
 
   _restoreConfig() {
@@ -721,224 +741,6 @@ export default class Viewer {
       if (this.renderer) {
         this.renderer.setSize( width, height );
       }
-
-      ['controlsConfig', 'controlsConfigDefault'].forEach((key)=>{
-
-        if (this.hasOwnProperty(key)) {
-          this[key].windowHalfX = (window.innerWidth / 2);
-          this[key].windowHalfY = (window.innerHeight / 2);
-        }
-      });
     }
-  }
-
-
-  _onDrop(evt = {dataTransfer: { files: [] }}) {
-
-    e.stopPropagation(); // Stops some browsers from redirecting.
-    e.preventDefault();
-
-    const files = evt.dataTransfer.files;
-
-    let onLoaded = (e) => {
-      this.parse(e.srcElement.result);
-    };
-
-    for (let i = 0; i < files.length; i++) {
-      let f = files[i];
-
-      // Read the File objects in this FileList.
-      // console.log(f.name + " - " + f.type)
-      if (/.*\.stl$/i.test(f.name)) {
-
-        let reader = new FileReader();
-
-        // Closure to capture the file information.
-        reader.onloadend = onLoaded;
-
-        reader.readAsArrayBuffer(f);
-      }
-    }
-  }
-
-
-  _onMouseDown(evt) {
-
-    evt.preventDefault();
-
-    const container = this.container;
-    const cfg = this.controlsConfig;
-
-    if (container) {
-
-      const { clientX, clientY } = evt;
-
-      container.addEventListener('mousemove', this._mouseMoveListener, false);
-      container.addEventListener('mouseup', this._mouseUpListener, false);
-      container.addEventListener('mouseout', this._mouseOutListener, false);
-
-      cfg.mouseXOnMouseDown = clientX - cfg.windowHalfX;
-      cfg.targetRotationOnMouseDownX = cfg.targetRotationX;
-
-      cfg.mouseYOnMouseDown = clientY - cfg.windowHalfY;
-      cfg.targetRotationOnMouseDownY = cfg.targetRotationY;
-    }
-
-  }
-
-  _onMouseMove(evt) {
-
-    if (evt) {
-
-      const cfg = this.controlsConfig;
-
-      cfg.mouseX = evt.clientX - cfg.windowHalfX;
-      cfg.mouseY = evt.clientY - cfg.windowHalfY;
-
-      cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.02;
-      cfg.targetRotationX = cfg.targetRotationOnMouseDownX + (cfg.mouseX - cfg.mouseXOnMouseDown) * 0.02;
-    }
-  }
-
-
-  _onMouseUp() {
-
-    const {container} = this;
-
-    if (container) {
-      container.removeEventListener( 'mousemove', this._mouseMoveListener, false );
-      container.removeEventListener( 'mouseup', this._mouseUpListener, false );
-      container.removeEventListener( 'mouseout', this._mouseOutListener, false );
-    }
-  }
-
-  _onMouseOut() {
-
-    const {container} = this;
-
-    if (container) {
-      container.removeEventListener('mousemove', this._mouseMoveListener, false);
-      container.removeEventListener('mouseup', this._mouseUpListener, false);
-      container.removeEventListener('mouseout', this._mouseOutListener, false);
-    }
-  }
-
-  _onTouchStart(evt = {touches: [] }) {
-
-    const touches = evt.touches;
-    const cfg = this.controlsConfig;
-
-    if (touches.length === 1) {
-
-      evt.preventDefault();
-      const {pageX, pageY} = touches[0];
-
-      cfg.mouseXOnMouseDown = pageX - cfg.windowHalfX;
-      cfg.targetRotationOnMouseDownX = cfg.targetRotationX;
-
-      cfg.mouseYOnMouseDown = pageY - cfg.windowHalfY;
-      cfg.targetRotationOnMouseDownY = cfg.targetRotationY;
-    }
-  }
-
-  _onTouchEnd(evt = {touches: [] }) {
-
-    const touches = evt.touches;
-    const cfg = this.controlsConfig;
-
-    if (touches.length === 1) {
-
-      evt.preventDefault();
-
-      const {pageX, pageY} = touches[0];
-
-      cfg.mouseX = pageX - cfg.windowHalfX;
-      cfg.targetRotationX = cfg.targetRotationOnMouseDownX + ( cfg.mouseX - cfg.mouseXOnMouseDown ) * 0.05;
-
-      cfg.mouseY = pageY - cfg.windowHalfY;
-      cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
-
-    }
-  }
-
-  _onTouchMove(evt = {touches: [] }) {
-
-    const touches = evt.touches;
-    const cfg = this.controlsConfig;
-
-    if (touches.length === 1 ) {
-
-      evt.preventDefault();
-      const {pageX, pageY} = touches[0];
-
-      cfg.mouseX = pageX - cfg.windowHalfX;
-      cfg.targetRotationX = cfg.targetRotationOnMouseDownX + ( cfg.mouseX - cfg.mouseXOnMouseDown ) * 0.05;
-
-      cfg.mouseY = pageY - cfg.windowHalfY;
-      cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
-    }
-  }
-
-  setModelColor(color) {
-
-    if (this.model && color) {
-      this.model.material.color = color;
-    }
-  }
-
-  setModelColorByHexcode(hexcode) {
-
-    if (hexcode) {
-      const colorValue = hexcode.replace('#', '0x');
-      const color = new THREE.Color(parseInt(colorValue, 16));
-      this.setModelColor(color);
-    }
-  }
-
-  render() {
-
-    // horizontal rotation
-    if (!this.group) {
-      return;
-    }
-
-    const group = this.group;
-    const cfg = this.controlsConfig;
-
-    group.rotation.y += ( cfg.targetRotationX - group.rotation.y ) * 0.1;
-
-    // vertical rotation
-    cfg.finalRotationY = (cfg.targetRotationY - group.rotation.x);
-    group.rotation.x += cfg.finalRotationY * 0.05;
-
-    this.renderer.render(this.scene, this.camera);
-  }
-
-
-  animate() {
-
-    if (this.stats) {
-      this.stats.begin();
-    }
-
-    this.animationId = requestAnimationFrame(()=>{
-      this.animate();
-    });
-
-    if (this.controls) {
-      this.controls.update();
-    }
-
-    this.render();
-
-    if (this.stats) {
-      this.stats.end();
-    }
-  }
-
-  destroy() {
-
-    this._unload();
-    this.container.remove();
   }
 }

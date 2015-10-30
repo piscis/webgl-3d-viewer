@@ -62,18 +62,27 @@ export default class ViewerFactory {
   }
 
   parse(content, cb) {
-    return this.viewer.load(content, cb);
+    return this.viewer.parse(content, cb);
   }
 
   reload(cb) {
 
     const path = this.viewer.loaderPath;
+    const content = this.viewer.loaderContent;
     const config = this.viewer.config;
 
     this.viewer.destroy();
     this._config = config;
     this._viewer = undefined;
-    this.viewer.load(path, cb);
+
+
+    console.log(this.viewer.loaderContent);
+
+    if (content) {
+      this.viewer.parse(content, cb);
+    }else if (path) {
+      this.viewer.load(path, cb);
+    }
   }
 
   destroy() {
