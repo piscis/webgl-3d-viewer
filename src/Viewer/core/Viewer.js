@@ -43,8 +43,10 @@ export default class Viewer {
       autoRotate: false,
       dragDrop: false,
       material: true,
+      startupAnimation: false,
       fudge: 1.0,
       progressBar: {}
+
     };
 
     // Prepare config
@@ -323,18 +325,18 @@ export default class Viewer {
     this.renderer.render(this.scene, this.camera);
   }
 
-  animate() {
+  animate(time) {
 
     if (this.stats) {
       this.stats.begin();
     }
 
-    this.animationId = requestAnimationFrame(()=>{
-      this.animate();
+    this.animationId = requestAnimationFrame((time)=>{
+      this.animate(time);
     });
 
     if (this.controls) {
-      this.controls.update();
+      this.controls.update(time);
     }
 
     this.render();
@@ -720,9 +722,12 @@ export default class Viewer {
 
     this._restoreConfig();
 
-    this.animate();
-    this.loaded = true;
-    callb();
+
+    requestAnimationFrame((time)=>{
+      this.animate(time);
+      this.loaded = true;
+      callb();
+    });
   }
 
   _onWindowResize() {
