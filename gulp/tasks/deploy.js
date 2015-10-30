@@ -1,15 +1,10 @@
 import gulpMain from 'gulp';
 import gulpHelp from 'gulp-help';
-import del from 'del';
+import ghPages from 'gulp-gh-pages';
 
-var gulp = gulpHelp(gulpMain);
-
-
-var ghPages = require('gulp-gh-pages');
+const gulp = gulpHelp(gulpMain);
 
 gulp.task('deploy-to-gh-pages', false,  function() {
-
-  let opts = {};
 
   return gulp.src('./dist/**/*')
     .pipe(ghPages());

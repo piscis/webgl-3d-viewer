@@ -4,7 +4,7 @@ import each from 'lodash/collection/each';
 
 export default class ProgressBar {
 
-  constructor(domElm, config={}){
+  constructor(domElm, config = {}) {
 
     this._container = domElm;
     this._progressElm = null;
@@ -31,41 +31,40 @@ export default class ProgressBar {
       </div>
     `.trim());
 
-    this._config = merge({},this._defaultConfig, config);
+    this._config = merge({}, this._defaultConfig, config);
     this._updateProgress();
   }
 
-  show(){
+  show() {
     this._config.visibility = 'visible';
-    if(this._progressElm.classList){
+    if (this._progressElm.classList) {
       this._progressElm.classList.remove('viewer__progress-bar--hidden');
       this._progressElm.classList.add('viewer__progress-bar--visible');
-    }else {
+    } else {
       this._updateProgress();
     }
   }
 
-  hide(){
+  hide() {
     this._config.visibility = 'hidden';
 
-    if(this._progressElm.classList){
+    if (this._progressElm.classList) {
       this._progressElm.classList.add('viewer__progress-bar--hidden');
       this._progressElm.classList.remove('viewer__progress-bar--visible');
-    }else {
+    } else {
       this._updateProgress();
     }
   }
 
-  _updateProgress(){
+  _updateProgress() {
 
     let elm = this.template(this._config);
-
     let domNodes = this._container.getElementsByClassName('viewer__progress-bar');
 
-    if(domNodes.length>0){
+    if (domNodes.length > 0) {
 
       each(domNodes, (node)=>{
-        if(node){
+        if (node) {
           node.remove();
         }
       });
@@ -73,7 +72,7 @@ export default class ProgressBar {
       this._progressElm = null;
     }
 
-    var el = document.createElement('div');
+    let el = document.createElement('div');
     el.innerHTML = elm;
 
     this._container.appendChild(el.childNodes[0]);
@@ -82,8 +81,8 @@ export default class ProgressBar {
 
   set progress(progress) {
 
-    if(progress){
-      this._config.progress = parseInt(progress);
+    if (progress) {
+      this._config.progress = parseInt(progress, 10);
       this._updateProgress();
     }
   }
@@ -96,7 +95,7 @@ export default class ProgressBar {
 
     let domElms = this._container.getElementsByClassName('viewer__progress-bar');
 
-    each(domElms,(node)=>{
+    each(domElms, (node)=>{
       node.remove();
     });
   }

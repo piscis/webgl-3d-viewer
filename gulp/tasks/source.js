@@ -1,21 +1,21 @@
 import gulpMain    from 'gulp';
 import gulpHelp    from 'gulp-help';
-import concat      from 'gulp-concat';
-import del         from 'del';
 import runSequence from 'run-sequence';
 import gutil       from 'gulp-util';
 import babel       from 'gulp-babel';
 import webpack     from 'webpack';
 
-var gulp = gulpHelp(gulpMain);
+const gulp = gulpHelp(gulpMain);
 
 gulp.task('source:webpack', false, function(callback) {
 
-  var config = require('./../../webpack.config.js');
+  const config = require('./../../webpack.config.js');
 
   webpack(config, function(err, stats) {
 
-    if(err) throw new gutil.PluginError('webpack', err);
+    if (err) {
+      throw new gutil.PluginError('webpack', err);
+    }
 
     gutil.log('[webpack]', stats.toString({}));
 
@@ -25,7 +25,7 @@ gulp.task('source:webpack', false, function(callback) {
 
 gulp.task('source:es6', false, function() {
 
-  var files = [
+  let files = [
     'src/viewer/**/*.*',
     'src/viewer/*.*'
   ];
@@ -51,5 +51,5 @@ gulp.task('source:static', false, ()=>{
 });
 
 gulp.task('source', false, (cb)=>{
-  return runSequence(['source:es6','source:webpack','source:static'], cb);
+  return runSequence(['source:es6', 'source:webpack', 'source:static'], cb);
 });
