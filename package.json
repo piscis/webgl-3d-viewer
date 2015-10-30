@@ -75,6 +75,7 @@
     "webpack-dev-server": "^1.12.1"
   },
   "dependencies": {
-    "lodash": "^3.10.1"
+    "lodash": "^3.10.1",
+    "tween.js": "^16.3.1"
   }
 }
