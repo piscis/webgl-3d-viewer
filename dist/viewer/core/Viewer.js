@@ -79,8 +79,10 @@ var Viewer = (function () {
       autoRotate: false,
       dragDrop: false,
       material: true,
+      startupAnimation: false,
       fudge: 1.0,
       progressBar: {}
+
     };
 
     // Prepare config
@@ -370,19 +372,19 @@ var Viewer = (function () {
     }
   }, {
     key: 'animate',
-    value: function animate() {
+    value: function animate(time) {
       var _this2 = this;
 
       if (this.stats) {
         this.stats.begin();
       }
 
-      this.animationId = requestAnimationFrame(function () {
-        _this2.animate();
+      this.animationId = requestAnimationFrame(function (time) {
+        _this2.animate(time);
       });
 
       if (this.controls) {
-        this.controls.update();
+        this.controls.update(time);
       }
 
       this.render();
@@ -763,6 +765,7 @@ var Viewer = (function () {
   }, {
     key: '_initializeGeometry',
     value: function _initializeGeometry(geometry, cb) {
+      var _this5 = this;
 
       var callb = cb || function () {};
       this._setupScene();
@@ -799,9 +802,11 @@ var Viewer = (function () {
 
       this._restoreConfig();
 
-      this.animate();
-      this.loaded = true;
-      callb();
+      requestAnimationFrame(function (time) {
+        _this5.animate(time);
+        _this5.loaded = true;
+        callb();
+      });
     }
   }, {
     key: '_onWindowResize',

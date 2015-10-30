@@ -18,6 +18,10 @@ var _OrbitControls = require('./OrbitControls');
 
 var _OrbitControls2 = _interopRequireDefault(_OrbitControls);
 
+var _tweenJs = require('tween.js');
+
+var _tweenJs2 = _interopRequireDefault(_tweenJs);
+
 var ModelControls = (function () {
   function ModelControls(container, camera, group) {
     var config = arguments.length <= 3 || arguments[3] === undefined ? {} : arguments[3];
@@ -30,6 +34,8 @@ var ModelControls = (function () {
 
     // Default configuration params
     this.controlsConfigDefault = {
+
+      startupAnimation: true,
 
       targetRotationX: 0,
       targetRotationOnMouseDownX: 0,
@@ -52,16 +58,24 @@ var ModelControls = (function () {
     this.controlsConfig = (0, _lodashObjectMerge2['default'])({}, this.controlsConfigDefault, config);
 
     this._init();
+
+    if (this.controlsConfig.startupAnimation === true) {
+      this._createStartUpAnimation();
+    }
   }
 
   _createClass(ModelControls, [{
     key: 'update',
-    value: function update() {
+    value: function update(time) {
 
       var group = this.group;
 
       if (this.controls) {
         this.controls.update();
+      }
+
+      if (this.tween) {
+        _tweenJs2['default'].update(time);
       }
 
       if (group) {
@@ -84,6 +98,35 @@ var ModelControls = (function () {
       if (this.controls) {
         this.controls.dispose();
       }
+
+      if (this.tween) {
+        _tweenJs2['default'].remove(this.tween);
+        this.tween = null;
+      }
+    }
+  }, {
+    key: '_createStartUpAnimation',
+    value: function _createStartUpAnimation() {
+      var _controlsConfig = this.controlsConfig;
+      var targetRotationY = _controlsConfig.targetRotationY;
+      var targetRotationX = _controlsConfig.targetRotationX;
+
+      var self = this;
+
+      var coords = {
+        x: targetRotationX / Math.PI * 180,
+        y: targetRotationY / Math.PI * 180
+      };
+
+      if (this.tween) {
+        _tweenJs2['default'].remove(this.tween);
+        this.tween = null;
+      }
+
+      this.tween = new _tweenJs2['default'].Tween(coords).to({ x: 360, y: 360 }, 5000).onUpdate(function () {
+        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
+        self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+      }).start();
     }
   }, {
     key: '_init',
@@ -192,6 +235,11 @@ var ModelControls = (function () {
       if (container) {
         var clientX = evt.clientX;
         var clientY = evt.clientY;
+
+        if (this.tween) {
+          _tweenJs2['default'].remove(this.tween);
+          this.tween = null;
+        }
 
         container.addEventListener('mousemove', this._mouseMoveListener, false);
         container.addEventListener('mouseup', this._mouseUpListener, false);
