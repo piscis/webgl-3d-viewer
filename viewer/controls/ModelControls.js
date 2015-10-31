@@ -32,6 +32,8 @@ var ModelControls = (function () {
     this.camera = camera;
     this.group = group;
 
+    this._animations = [];
+
     // Default configuration params
     this.controlsConfigDefault = {
 
@@ -74,9 +76,8 @@ var ModelControls = (function () {
         this.controls.update();
       }
 
-      if (this.tween) {
-        _tweenJs2['default'].update(time);
-      }
+      // Do tweening
+      _tweenJs2['default'].update(time);
 
       if (group) {
 
@@ -99,9 +100,18 @@ var ModelControls = (function () {
         this.controls.dispose();
       }
 
-      if (this.tween) {
-        _tweenJs2['default'].remove(this.tween);
-        this.tween = null;
+      this._clearAnimations();
+      this._animations = [];
+    }
+  }, {
+    key: '_clearAnimations',
+    value: function _clearAnimations() {
+
+      if (this.animations && this._animations.length > 0) {
+
+        while (this._animations.length > 0) {
+          _tweenJs2['default'].remove(this._animations.pop());
+        }
       }
     }
   }, {
@@ -118,15 +128,25 @@ var ModelControls = (function () {
         y: targetRotationY / Math.PI * 180
       };
 
-      if (this.tween) {
-        _tweenJs2['default'].remove(this.tween);
-        this.tween = null;
-      }
+      this._clearAnimations();
 
-      this.tween = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).to({ x: 360, y: 360 }, 3000).onUpdate(function () {
+      var tween1 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).to({ x: 360, y: 45 }, 3000).onUpdate(function () {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+      }).start();
+
+      this._animations.push(tween1);
+
+      var tween2 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).to({ x: 360, y: 45 }, 1500).onUpdate(function () {
         self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       }).start();
+
+      this._animations.push(tween2);
+
+      var tween3 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).delay(3500).to({ x: 360, y: 0 }, 1500).onUpdate(function () {
+        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
+      }).start();
+
+      this._animations.push(tween3);
     }
   }, {
     key: '_init',
@@ -236,10 +256,7 @@ var ModelControls = (function () {
         var clientX = evt.clientX;
         var clientY = evt.clientY;
 
-        if (this.tween) {
-          _tweenJs2['default'].remove(this.tween);
-          this.tween = null;
-        }
+        this._clearAnimations();
 
         container.addEventListener('mousemove', this._mouseMoveListener, false);
         container.addEventListener('mouseup', this._mouseUpListener, false);
