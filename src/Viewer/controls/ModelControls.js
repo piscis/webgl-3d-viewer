@@ -103,7 +103,7 @@ export default class ModelControls {
 
     let tween1 = new TWEEN.Tween(coords)
       .easing(TWEEN.Easing.Quadratic.In)
-      .to({ x: 360, y: 45 }, 3000)
+      .to({ x: 405, y: 45 }, 3000)
       .onUpdate(function() {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
       })
@@ -120,17 +120,6 @@ export default class ModelControls {
       .start();
 
     this._animations.push(tween2);
-
-    let tween3 = new TWEEN.Tween(coords)
-      .easing(TWEEN.Easing.Quadratic.In)
-      .delay(3500)
-      .to({ x: 360, y: 0 }, 1500)
-      .onUpdate(function() {
-        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
-      })
-      .start();
-
-    this._animations.push(tween3);
   }
 
   _init() {
