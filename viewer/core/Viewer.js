@@ -834,6 +834,11 @@ var Viewer = (function () {
       var vElm = document.createElement('div');
       vElm.style.height = '100%';
       vElm.style.width = '100%';
+      vElm.style.position = 'absolute';
+      vElm.style.left = 0;
+      vElm.style.right = 0;
+      vElm.style.bottom = 0;
+      vElm.style.top = 0;
       domElm.appendChild(vElm);
 
       return vElm;
