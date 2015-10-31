@@ -130,7 +130,7 @@ var ModelControls = (function () {
 
       this._clearAnimations();
 
-      var tween1 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).to({ x: 360, y: 45 }, 3000).onUpdate(function () {
+      var tween1 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).to({ x: 405, y: 45 }, 3000).onUpdate(function () {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
       }).start();
 
@@ -141,12 +141,6 @@ var ModelControls = (function () {
       }).start();
 
       this._animations.push(tween2);
-
-      var tween3 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quadratic.In).delay(3500).to({ x: 360, y: 0 }, 1500).onUpdate(function () {
-        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
-      }).start();
-
-      this._animations.push(tween3);
     }
   }, {
     key: '_init',
