@@ -10,6 +10,8 @@ export default class ModelControls {
     this.camera = camera;
     this.group = group;
 
+    this._animations = [];
+
     // Default configuration params
     this.controlsConfigDefault = {
 
@@ -50,9 +52,8 @@ export default class ModelControls {
       this.controls.update();
     }
 
-    if (this.tween) {
-      TWEEN.update(time);
-    }
+    // Do tweening
+    TWEEN.update(time);
 
     if (group) {
 
@@ -74,9 +75,17 @@ export default class ModelControls {
       this.controls.dispose();
     }
 
-    if (this.tween) {
-      TWEEN.remove(this.tween);
-      this.tween = null;
+    this._clearAnimations();
+    this._animations = [];
+  }
+
+  _clearAnimations() {
+
+    if (this.animations && this._animations.length >0) {
+
+      while (this._animations.length > 0) {
+        TWEEN.remove(this._animations.pop());
+      }
     }
   }
 
@@ -90,19 +99,41 @@ export default class ModelControls {
       y: targetRotationY / Math.PI * 180
     };
 
-    if (this.tween) {
-      TWEEN.remove(this.tween);
-      this.tween = null;
-    }
+    this._clearAnimations();
 
-    this.tween = new TWEEN.Tween(coords)
+    let tween1 = new TWEEN.Tween(coords)
       .easing(TWEEN.Easing.Quadratic.In)
-      .to({ x: 360, y: 360 }, 3000)
+      .to({ x: 360, y: 45 }, 3000)
       .onUpdate(function() {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+        //self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
+      })
+      .start();
+
+    this._animations.push(tween1);
+
+    let tween2 = new TWEEN.Tween(coords)
+      .easing(TWEEN.Easing.Quadratic.In)
+      .to({ x: 360, y: 45 }, 1500)
+      .onUpdate(function() {
+        //self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
         self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       })
       .start();
+
+    this._animations.push(tween2);
+
+    let tween3 = new TWEEN.Tween(coords)
+      .easing(TWEEN.Easing.Quadratic.In)
+      .delay(3500)
+      .to({ x: 360, y: 0 }, 1500)
+      .onUpdate(function() {
+        //self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
+        self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
+      })
+      .start();
+
+    this._animations.push(tween3);
   }
 
   _init() {
@@ -189,10 +220,7 @@ export default class ModelControls {
 
       const { clientX, clientY } = evt;
 
-      if (this.tween) {
-        TWEEN.remove(this.tween);
-        this.tween = null;
-      }
+      this._clearAnimations();
 
       container.addEventListener('mousemove', this._mouseMoveListener, false);
       container.addEventListener('mouseup', this._mouseUpListener, false);
