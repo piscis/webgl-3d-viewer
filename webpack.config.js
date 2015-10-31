@@ -1,7 +1,7 @@
 var config = {
   entry: './src/example/main.js',
   output: {
-    path: __dirname+'/build/example',
+    path: `${__dirname}/build/example`,
     filename: 'main.js'
   },
   module: {
@@ -16,6 +16,15 @@ var config = {
         }
       }
     ]
+  },
+  devServer: {
+    headers: {
+      'Access-Control-Allow-Origin': '*'
+    },
+    watchOptions: {
+      aggregateTimeout: 1000,
+      poll: 2000
+    }
   }
 };
 
