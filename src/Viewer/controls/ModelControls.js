@@ -81,7 +81,7 @@ export default class ModelControls {
 
   _clearAnimations() {
 
-    if (this.animations && this._animations.length >0) {
+    if (this.animations && this._animations.length > 0) {
 
       while (this._animations.length > 0) {
         TWEEN.remove(this._animations.pop());
@@ -106,7 +106,6 @@ export default class ModelControls {
       .to({ x: 360, y: 45 }, 3000)
       .onUpdate(function() {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
-        //self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       })
       .start();
 
@@ -116,7 +115,6 @@ export default class ModelControls {
       .easing(TWEEN.Easing.Quadratic.In)
       .to({ x: 360, y: 45 }, 1500)
       .onUpdate(function() {
-        //self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
         self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       })
       .start();
@@ -128,7 +126,6 @@ export default class ModelControls {
       .delay(3500)
       .to({ x: 360, y: 0 }, 1500)
       .onUpdate(function() {
-        //self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
         self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       })
       .start();
