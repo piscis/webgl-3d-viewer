@@ -66,9 +66,11 @@
           viewer.setModelColorByHexcode(colorValue);
         });
 
+        /*
         gui.addColor(cfg, 'BodyBgColor').onChange(function(colorValue) {
           document.body.style.background = colorValue;
         });
+        */
 
         gui.add(cfg, 'wireframe').onChange(function(val){
           viewer.toggleModelWireframe();
