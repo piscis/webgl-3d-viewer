@@ -1,6 +1,6 @@
 {
   "name": "3dviewer",
-  "version": "1.4.35",
+  "version": "1.4.36",
   "private": true,
   "description": "A ThreeJS STL viewer",
   "main": "dist/viewer",
