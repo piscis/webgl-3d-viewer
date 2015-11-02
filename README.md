@@ -1,6 +1,6 @@
-## 3D Viewer
+## WebGL 3D viewer
 
-A ThreeJS WebGL STL viewer with basic mouse and touch controls. Visit the [Demo](https://piscis.github.io/3dviewer/example/) for an example.
+A ThreeJS WebGL STL viewer with basic mouse and touch controls. Visit the [Demo](http://git.io/vla38) for an example.
 
 ### How to build
 
@@ -12,3 +12,7 @@ A ThreeJS WebGL STL viewer with basic mouse and touch controls. Visit the [Demo]
     
 ##### Start build release
     npm run release
+
+### Todo's
+ * Support more loaders
+ * Extend documentation
