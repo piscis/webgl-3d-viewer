@@ -2,7 +2,7 @@
   "name": "webgl-3d-viewer",
   "version": "1.4.36",
   "private": true,
-  "description": "A webgl ThreeJS STL viewer implementation written in ES6",
+  "description": "A WebGL ThreeJS STL viewer implementation written in ES6",
   "main": "dist/viewer",
   "scripts": {
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
