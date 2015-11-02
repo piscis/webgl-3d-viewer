@@ -1,8 +1,8 @@
 {
-  "name": "3dviewer",
+  "name": "webgl-3d-viewer",
   "version": "1.4.36",
   "private": true,
-  "description": "A ThreeJS STL viewer",
+  "description": "A webgl ThreeJS STL viewer implementation writen in ES6",
   "main": "dist/viewer",
   "scripts": {
     "lint": "eslint src/viewer gulp gulpfile.babel.js",
@@ -18,10 +18,10 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/piscis/3dviewer"
+    "url": "https://github.com/piscis/webgl-3d-viewer"
   },
   "bugs": {
-    "url": "https://github.com/piscis/3dviewer/issues"
+    "url": "https://github.com/piscis/webgl-3d-viewer/issues"
   },
   "keywords": [
     "ThreeJS",
