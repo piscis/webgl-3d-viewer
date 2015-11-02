@@ -14,5 +14,5 @@ A ThreeJS WebGL STL viewer with basic mouse and touch controls. Visit the [Demo]
     npm run release
 
 ### Todo's
- * Support more loaders
+ * Support additional loader
  * Extend documentation
