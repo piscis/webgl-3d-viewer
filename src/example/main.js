@@ -11,7 +11,7 @@ window.introJs = introJs;
 
 $(()=>{
 
-  if (localStorage && localStorage.getItem('disableTooltip') !== "true") {
+  if (localStorage && localStorage.getItem('disableTooltip') !== 'true') {
 
     setTimeout(()=>{
 
