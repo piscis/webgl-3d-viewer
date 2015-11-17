@@ -11,9 +11,9 @@ body {
   display: block;
   height: 100%;
   width: 100%;
-  background-image: radial-gradient(center bottom, ellipse cover, rgb(132,202,110), rgb(79,154,56));
-  background-image: -webkit-radial-gradient(center bottom, ellipse cover, rgb(132,202,110), rgb(79,154,56));
-  background-image: -moz-radial-gradient(center bottom, ellipse cover, rgb(132,202,110), rgb(79,154,56));
+  background-image: radial-gradient(center bottom, ellipse cover, rgb(116,170,31), rgb(79,154,56));
+  background-image: -webkit-radial-gradient(center bottom, ellipse cover, rgb(116,170,31), rgb(79,154,56));
+  background-image: -moz-radial-gradient(center bottom, ellipse cover, rgb(116,170,31), rgb(79,154,56));
 }
 
 .viewer__wrapper {
