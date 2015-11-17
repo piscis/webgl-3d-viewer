@@ -102,8 +102,8 @@ export default class ModelControls {
     this._clearAnimations();
 
     let tween1 = new TWEEN.Tween(coords)
-      .easing(TWEEN.Easing.Back.InOut)
-      .to({ x: 405, y: 45 }, 3500)
+      .easing(TWEEN.Easing.Quintic.Out)
+      .to({ x: 1845 }, 3500)
       .onUpdate(function() {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
       })
@@ -113,7 +113,7 @@ export default class ModelControls {
 
     let tween2 = new TWEEN.Tween(coords)
       .easing(TWEEN.Easing.Exponential.Out)
-      .to({ x: 360, y: 45 }, 1500)
+      .to({ y: 45 }, 1500)
       .onUpdate(function() {
         self.controlsConfig.targetRotationY = this.y * Math.PI / 180;
       })
