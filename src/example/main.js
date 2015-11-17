@@ -1,6 +1,7 @@
 // Bootstrapping for example
 
 require('intro.js/minified/introjs.min.css');
+require('gfr-css-bem/dist/gh-fork-ribbon-bem.min.css');
 
 import {introJs} from 'intro.js/minified/intro.min.js';
 

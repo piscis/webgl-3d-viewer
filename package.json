@@ -76,6 +76,7 @@
     "webpack-dev-server": "^1.12.1"
   },
   "dependencies": {
+    "gfr-css-bem": "^0.1.16",
     "intro.js": "^1.1.1",
     "lodash": "^3.10.1",
     "tween.js": "^16.3.1"
