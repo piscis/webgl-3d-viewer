@@ -14,6 +14,10 @@ var _lodashObjectMerge = require('lodash/object/merge');
 
 var _lodashObjectMerge2 = _interopRequireDefault(_lodashObjectMerge);
 
+var _lodashCollectionSample = require('lodash/collection/sample');
+
+var _lodashCollectionSample2 = _interopRequireDefault(_lodashCollectionSample);
+
 var _OrbitControls = require('./OrbitControls');
 
 var _OrbitControls2 = _interopRequireDefault(_OrbitControls);
@@ -33,6 +37,32 @@ var ModelControls = (function () {
     this.group = group;
 
     this._animations = [];
+
+    this._startUpAnimations = [{
+      easing: _tweenJs2['default'].Easing.Quintic.Out,
+      to: { x: 5 * 360 + 45 },
+      time: 3500
+    }, {
+      easing: _tweenJs2['default'].Easing.Exponential.InOut,
+      to: { x: 3 * 360 + 45 },
+      time: 2500
+    }, {
+      easing: _tweenJs2['default'].Easing.Elastic.Out,
+      to: { x: 3 * 360 + 45 },
+      time: 5500
+    }, {
+      easing: _tweenJs2['default'].Easing.Circular.In,
+      to: { x: 4 * 360 + 45 },
+      time: 2500
+    }, {
+      easing: _tweenJs2['default'].Easing.Quintic.InOut,
+      to: { x: 3 * 360 + 45 },
+      time: 2500
+    }, {
+      easing: _tweenJs2['default'].Easing.Exponential.Out,
+      to: { x: 4 * 360 + 45 },
+      time: 2800
+    }];
 
     // Default configuration params
     this.controlsConfigDefault = {
@@ -107,7 +137,7 @@ var ModelControls = (function () {
     key: '_clearAnimations',
     value: function _clearAnimations() {
 
-      if (this.animations && this._animations.length > 0) {
+      if (this._animations && this._animations.length > 0) {
 
         while (this._animations.length > 0) {
           _tweenJs2['default'].remove(this._animations.pop());
@@ -130,7 +160,9 @@ var ModelControls = (function () {
 
       this._clearAnimations();
 
-      var tween1 = new _tweenJs2['default'].Tween(coords).easing(_tweenJs2['default'].Easing.Quintic.Out).to({ x: 1845 }, 3500).onUpdate(function () {
+      var anim = (0, _lodashCollectionSample2['default'])(this._startUpAnimations);
+
+      var tween1 = new _tweenJs2['default'].Tween(coords).easing(anim.easing).to(anim.to, anim.time).onUpdate(function () {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
       }).start();
 
