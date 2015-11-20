@@ -1,4 +1,5 @@
 import merge from 'lodash/object/merge';
+import sample from 'lodash/collection/sample';
 import OrbitControls from './OrbitControls';
 import TWEEN from 'tween.js';
 
@@ -11,6 +12,39 @@ export default class ModelControls {
     this.group = group;
 
     this._animations = [];
+
+    this._startUpAnimations = [
+      {
+        easing: TWEEN.Easing.Quintic.Out,
+        to: {x: (5 * 360 + 45)},
+        time: 3500
+      },
+      {
+        easing: TWEEN.Easing.Exponential.InOut,
+        to: {x: (3 * 360 + 45)},
+        time: 2500
+      },
+      {
+        easing: TWEEN.Easing.Elastic.Out,
+        to: {x: (3 * 360 + 45)},
+        time: 5500
+      },
+      {
+        easing: TWEEN.Easing.Circular.In,
+        to: {x: (4 * 360 + 45)},
+        time: 2500
+      },
+      {
+        easing: TWEEN.Easing.Quintic.InOut,
+        to: {x: (3 * 360 + 45)},
+        time: 2500
+      },
+      {
+        easing: TWEEN.Easing.Exponential.Out,
+        to: {x: (4 * 360 + 45)},
+        time: 2800
+      }
+    ];
 
     // Default configuration params
     this.controlsConfigDefault = {
@@ -81,7 +115,7 @@ export default class ModelControls {
 
   _clearAnimations() {
 
-    if (this.animations && this._animations.length > 0) {
+    if (this._animations && this._animations.length > 0) {
 
       while (this._animations.length > 0) {
         TWEEN.remove(this._animations.pop());
@@ -101,9 +135,11 @@ export default class ModelControls {
 
     this._clearAnimations();
 
+    const anim = sample(this._startUpAnimations);
+
     let tween1 = new TWEEN.Tween(coords)
-      .easing(TWEEN.Easing.Quintic.Out)
-      .to({ x: 1845 }, 3500)
+      .easing(anim.easing)
+      .to(anim.to, anim.time)
       .onUpdate(function() {
         self.controlsConfig.targetRotationX = this.x * Math.PI / 180;
       })
