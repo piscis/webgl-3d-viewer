@@ -1,6 +1,5 @@
 {
   "name": "webgl-3d-viewer",
-  "version": "1.4.41",
   "description": "A WebGL ThreeJS STL viewer implementation written in ES6",
   "main": "dist/viewer",
   "scripts": {
@@ -69,6 +68,8 @@
     "require-dir": "^0.3.0",
     "rimraf": "^2.4.3",
     "run-sequence": "^1.1.4",
+    "semantic-release": "^4.3.5",
+    "semantic-release-cli": "^1.3.3",
     "style-loader": "^0.13.0",
     "three": "^0.72.0",
     "vinyl-source-stream": "^1.1.0",
