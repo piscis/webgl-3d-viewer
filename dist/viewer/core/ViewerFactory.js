@@ -26,6 +26,18 @@ var ViewerFactory = (function () {
   }
 
   _createClass(ViewerFactory, [{
+    key: 'zoomIn',
+    value: function zoomIn() {
+      var scale = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
+
+      this.viewer.controls.zoomIn(scale);
+    }
+  }, {
+    key: 'zoomOut',
+    value: function zoomOut(scale) {
+      this.viewer.controls.zoomOut(scale);
+    }
+  }, {
     key: 'togglePlane',
     value: function togglePlane() {
       var viewer = this.viewer;
@@ -121,6 +133,14 @@ var ViewerFactory = (function () {
       }
 
       return this._viewer;
+    }
+  }, {
+    key: 'zoom',
+    get: function get() {
+      return this.viewer.zoom;
+    },
+    set: function set(val) {
+      this.viewer.zoom = val;
     }
   }]);
 

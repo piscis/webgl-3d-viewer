@@ -77,6 +77,7 @@ var Viewer = (function () {
       axis: false,
       stats: null,
       autoRotate: false,
+      zoom: false,
       dragDrop: false,
       material: true,
       startupAnimation: false,
@@ -447,7 +448,7 @@ var Viewer = (function () {
           this.controls = null;
         }
 
-        this.controls = new _controlsModelControls2['default'](this.container, this.camera, this.group);
+        this.controls = new _controlsModelControls2['default'](this.container, this.camera, this.group, this.config);
       }
     }
   }, {
@@ -826,6 +827,15 @@ var Viewer = (function () {
           this.renderer.setSize(width, height);
         }
       }
+    }
+  }, {
+    key: 'zoom',
+    set: function set(val) {
+      this.controls.zoom = val;
+      this.config.zoom = val;
+    },
+    get: function get() {
+      return this.config.zoom;
     }
   }], [{
     key: '_setupContainer',
