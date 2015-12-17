@@ -37,6 +37,7 @@ var ModelControls = (function () {
     this.group = group;
 
     this._animations = [];
+    this._zoomTween = null;
 
     this._startUpAnimations = [{
       easing: _tweenJs2['default'].Easing.Quintic.Out,
@@ -127,26 +128,46 @@ var ModelControls = (function () {
     value: function zoomIn() {
       var scale = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
 
+      _tweenJs2['default'].remove(this._zoomTween);
+
       var cam = this.camera;
       var dollyScale = Math.pow(0.95, scale);
       var minZoom = this.controls.minZoom;
       var maxZoom = this.controls.maxZoom;
+      var zoomLvl = Math.max(minZoom, Math.min(maxZoom, cam.zoom / dollyScale));
 
-      cam.zoom = Math.max(minZoom, Math.min(maxZoom, cam.zoom / dollyScale));
-      cam.updateProjectionMatrix();
+      this._dollyZoom(zoomLvl);
     }
   }, {
     key: 'zoomOut',
     value: function zoomOut() {
       var scale = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
 
+      _tweenJs2['default'].remove(this._zoomTween);
+
       var cam = this.camera;
       var dollyScale = Math.pow(0.95, scale);
       var minZoom = this.controls.minZoom;
       var maxZoom = this.controls.maxZoom;
+      var zoomLvl = Math.max(minZoom, Math.min(maxZoom, cam.zoom * dollyScale));
 
-      cam.zoom = Math.max(minZoom, Math.min(maxZoom, cam.zoom * dollyScale));
-      cam.updateProjectionMatrix();
+      this._dollyZoom(zoomLvl);
+    }
+  }, {
+    key: '_dollyZoom',
+    value: function _dollyZoom(zoomLvl) {
+
+      var cam = this.camera;
+      var tween = new _tweenJs2['default'].Tween({ zoom: cam.zoom });
+      tween.to({ zoom: zoomLvl }, 300);
+      tween.onUpdate(function () {
+        cam.zoom = this.zoom;
+        cam.updateProjectionMatrix();
+      });
+      tween.start();
+
+      this._zoomTween = tween;
+      return tween;
     }
   }, {
     key: 'destroy',
@@ -171,6 +192,8 @@ var ModelControls = (function () {
           _tweenJs2['default'].remove(this._animations.pop());
         }
       }
+
+      _tweenJs2['default'].remove(this._zoomTween);
     }
   }, {
     key: '_createStartUpAnimation',
