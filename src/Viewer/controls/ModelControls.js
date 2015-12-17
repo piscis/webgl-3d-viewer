@@ -11,7 +11,9 @@ export default class ModelControls {
     this.camera = camera;
     this.group = group;
 
+
     this._animations = [];
+    this._zoomTween = null;
 
     this._startUpAnimations = [
       {
@@ -104,23 +106,44 @@ export default class ModelControls {
   }
 
   zoomIn(scale = 2) {
+
+    TWEEN.remove(this._zoomTween);
+
     const cam = this.camera;
     const dollyScale = Math.pow(0.95, scale);
     const minZoom = this.controls.minZoom;
     const maxZoom = this.controls.maxZoom;
+    const zoomLvl = Math.max( minZoom, Math.min( maxZoom, cam.zoom / dollyScale ) );
 
-    cam.zoom = Math.max( minZoom, Math.min( maxZoom, cam.zoom / dollyScale ) );
-    cam.updateProjectionMatrix();
+    this._dollyZoom(zoomLvl);
   }
 
   zoomOut(scale = 2) {
+
+    TWEEN.remove(this._zoomTween);
+
     const cam = this.camera;
     const dollyScale = Math.pow(0.95, scale);
     const minZoom = this.controls.minZoom;
     const maxZoom = this.controls.maxZoom;
+    const zoomLvl = Math.max( minZoom, Math.min( maxZoom, cam.zoom * dollyScale ) );
 
-    cam.zoom = Math.max( minZoom, Math.min( maxZoom, cam.zoom * dollyScale ) );
-    cam.updateProjectionMatrix();
+    this._dollyZoom(zoomLvl);
+  }
+
+  _dollyZoom(zoomLvl) {
+
+    const cam = this.camera;
+    const tween = new TWEEN.Tween({zoom: cam.zoom });
+    tween.to({ zoom: zoomLvl }, 300);
+    tween.onUpdate(function() {
+      cam.zoom = this.zoom;
+      cam.updateProjectionMatrix();
+    });
+    tween.start();
+
+    this._zoomTween = tween;
+    return tween;
   }
 
   destroy() {
@@ -143,6 +166,8 @@ export default class ModelControls {
         TWEEN.remove(this._animations.pop());
       }
     }
+
+    TWEEN.remove(this._zoomTween);
   }
 
   _createStartUpAnimation() {
