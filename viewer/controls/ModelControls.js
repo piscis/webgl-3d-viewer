@@ -84,7 +84,9 @@ var ModelControls = (function () {
       clientHalfX: this.container.clientWidth / 2,
       clientHalfY: this.container.clientHeight / 2,
 
-      finalRotationY: null
+      finalRotationY: null,
+
+      zoom: false
     };
 
     this.controlsConfig = (0, _lodashObjectMerge2['default'])({}, this.controlsConfigDefault, config);
@@ -119,6 +121,32 @@ var ModelControls = (function () {
         cfg.finalRotationY = cfg.targetRotationY - group.rotation.x;
         group.rotation.x += cfg.finalRotationY * 0.05;
       }
+    }
+  }, {
+    key: 'zoomIn',
+    value: function zoomIn() {
+      var scale = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
+
+      var cam = this.camera;
+      var dollyScale = Math.pow(0.95, scale);
+      var minZoom = this.controls.minZoom;
+      var maxZoom = this.controls.maxZoom;
+
+      cam.zoom = Math.max(minZoom, Math.min(maxZoom, cam.zoom / dollyScale));
+      cam.updateProjectionMatrix();
+    }
+  }, {
+    key: 'zoomOut',
+    value: function zoomOut() {
+      var scale = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
+
+      var cam = this.camera;
+      var dollyScale = Math.pow(0.95, scale);
+      var minZoom = this.controls.minZoom;
+      var maxZoom = this.controls.maxZoom;
+
+      cam.zoom = Math.max(minZoom, Math.min(maxZoom, cam.zoom * dollyScale));
+      cam.updateProjectionMatrix();
     }
   }, {
     key: 'destroy',
@@ -180,7 +208,7 @@ var ModelControls = (function () {
 
       // Clean registered event listener
       this._removeEventListener();
-      this.controlsConfig = (0, _lodashObjectMerge2['default'])({}, this.controlsConfigDefault);
+      // this.controlsConfig = merge({}, this.controlsConfigDefault);
       this._setupListener();
 
       // Delecate to orbit controls
@@ -190,7 +218,7 @@ var ModelControls = (function () {
       controls.enableRotate = false;
       controls.enablePan = false;
       controls.enableDamping = false;
-      controls.enableZoom = true;
+      controls.enableZoom = this.controlsConfig.zoom;
 
       var bb = new THREE.Box3();
       bb.setFromObject(this.group);
@@ -398,6 +426,15 @@ var ModelControls = (function () {
         cfg.mouseY = pageY - cfg.clientHalfY;
         cfg.targetRotationY = cfg.targetRotationOnMouseDownY + (cfg.mouseY - cfg.mouseYOnMouseDown) * 0.05;
       }
+    }
+  }, {
+    key: 'zoom',
+    set: function set(val) {
+      this.controls.enableZoom = val;
+      this.controlsConfig.zoom = val;
+    },
+    get: function get() {
+      return this.controlsConfig;
     }
   }]);
 
