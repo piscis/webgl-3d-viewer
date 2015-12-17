@@ -66,7 +66,9 @@ export default class ModelControls {
       clientHalfX: (this.container.clientWidth / 2),
       clientHalfY: (this.container.clientHeight / 2),
 
-      finalRotationY: null
+      finalRotationY: null,
+
+      zoom: false
     };
 
     this.controlsConfig = merge({}, this.controlsConfigDefault, config);
@@ -99,6 +101,26 @@ export default class ModelControls {
       cfg.finalRotationY = (cfg.targetRotationY - group.rotation.x);
       group.rotation.x += cfg.finalRotationY * 0.05;
     }
+  }
+
+  zoomIn(scale = 2) {
+    const cam = this.camera;
+    const dollyScale = Math.pow(0.95, scale);
+    const minZoom = this.controls.minZoom;
+    const maxZoom = this.controls.maxZoom;
+
+    cam.zoom = Math.max( minZoom, Math.min( maxZoom, cam.zoom / dollyScale ) );
+    cam.updateProjectionMatrix();
+  }
+
+  zoomOut(scale = 2) {
+    const cam = this.camera;
+    const dollyScale = Math.pow(0.95, scale);
+    const minZoom = this.controls.minZoom;
+    const maxZoom = this.controls.maxZoom;
+
+    cam.zoom = Math.max( minZoom, Math.min( maxZoom, cam.zoom * dollyScale ) );
+    cam.updateProjectionMatrix();
   }
 
   destroy() {
@@ -158,11 +180,20 @@ export default class ModelControls {
     this._animations.push(tween2);
   }
 
+  set zoom(val) {
+    this.controls.enableZoom = val;
+    this.controlsConfig.zoom = val;
+  }
+
+  get zoom() {
+    return this.controlsConfig;
+  }
+
   _init() {
 
     // Clean registered event listener
     this._removeEventListener();
-    this.controlsConfig = merge({}, this.controlsConfigDefault);
+    // this.controlsConfig = merge({}, this.controlsConfigDefault);
     this._setupListener();
 
     // Delecate to orbit controls
@@ -172,7 +203,7 @@ export default class ModelControls {
     controls.enableRotate = false;
     controls.enablePan = false;
     controls.enableDamping = false;
-    controls.enableZoom = true;
+    controls.enableZoom = this.controlsConfig.zoom;
 
     let bb = new THREE.Box3();
     bb.setFromObject(this.group);

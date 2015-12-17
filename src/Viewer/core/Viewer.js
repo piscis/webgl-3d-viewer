@@ -41,6 +41,7 @@ export default class Viewer {
       axis: false,
       stats: null,
       autoRotate: false,
+      zoom: false,
       dragDrop: false,
       material: true,
       startupAnimation: false,
@@ -174,6 +175,15 @@ export default class Viewer {
     }
 
     return this.config.plane;
+  }
+
+  set zoom(val) {
+    this.controls.zoom = val;
+    this.config.zoom = val;
+  }
+
+  get zoom() {
+    return this.config.zoom;
   }
 
   enableModelWireframe(state = true) {
@@ -400,7 +410,7 @@ export default class Viewer {
         this.controls = null;
       }
 
-      this.controls = new ModelControls(this.container, this.camera, this.group);
+      this.controls = new ModelControls(this.container, this.camera, this.group, this.config);
     }
   }
 

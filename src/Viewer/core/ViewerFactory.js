@@ -9,6 +9,14 @@ export default class ViewerFactory {
     this._viewer = null;
   }
 
+  zoomIn(scale = 2) {
+    this.viewer.controls.zoomIn(scale);
+  }
+
+  zoomOut(scale) {
+    this.viewer.controls.zoomOut(scale);
+  }
+
   get viewer() {
 
     if (!this._viewer) {
@@ -16,6 +24,14 @@ export default class ViewerFactory {
     }
 
     return this._viewer;
+  }
+
+  get zoom() {
+    return this.viewer.zoom;
+  }
+
+  set zoom(val) {
+    this.viewer.zoom = val;
   }
 
   togglePlane() {
