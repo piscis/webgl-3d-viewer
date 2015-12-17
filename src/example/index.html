@@ -34,7 +34,7 @@
         ctl.appendChild(stats.domElement);
 
         var id = "stlviewer";
-        var config = {"stats": stats,"dragDrop": true, "autoRotate": true, "startupAnimation": true};
+        var config = {stats: stats, dragDrop: true, autoRotate: true, startupAnimation: true, zoom: true};
         var viewer = new ModelViewer(document.getElementById(id),config);
 
         window.viewer = viewer;
@@ -51,6 +51,7 @@
           this.axis = false;
           this.autorotate = true;
           this.material = true;
+          this.zoom = config.zoom;
 
           this.model = '';
           this.modelSamples = {
@@ -96,6 +97,10 @@
 
         gui.add(cfg, 'axis').onChange(function(val){
           viewer.toggleAxis();
+        });
+
+        gui.add(cfg, 'zoom').onChange(function(val) {
+          viewer.zoom = val
         });
 
         /*
