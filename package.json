@@ -1,6 +1,6 @@
 {
   "name": "webgl-3d-viewer",
-  "version": "1.4.44",
+  "version": "1.5.1",
   "description": "A WebGL ThreeJS STL viewer implementation written in ES6",
   "main": "dist/viewer",
   "scripts": {
