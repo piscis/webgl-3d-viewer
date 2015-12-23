@@ -105,8 +105,74 @@ THREE.STLLoader.prototype = {
 
   },
 
-  parseBinary: function ( data ) {
+  trim: function(str) {
+    str = str.replace(/^\s+/, '');
 
+    for (var i = str.length - 1; i >= 0; i--) {
+      if (/\S/.test(str.charAt(i))) {
+        str = str.substring(0, i + 1);
+        break;
+      }
+    }
+
+    return str;
+  },
+
+  // Notes:
+  // - STL file format: http://en.wikipedia.org/wiki/STL_(file_format)
+  // - 80 byte unused header
+  // - All binary STLs are assumed to be little endian, as per wiki doc
+  parseBinary: function(stl) {
+
+    const geometry = new THREE.Geometry();
+    const dv = new DataView(stl, 80); // 80 == unused header
+    const isLittleEndian = true;
+    const triangles = dv.getUint32(0, isLittleEndian);
+
+    // console.log('arraybuffer length:  ' + stl.byteLength);
+    // console.log('number of triangles: ' + triangles);
+
+    let offset = 4;
+    for (let i = 0; i < triangles; i++) {
+      // Get the normal for this triangle
+      let normal = new THREE.Vector3(
+        dv.getFloat32(offset, isLittleEndian),
+        dv.getFloat32(offset + 4, isLittleEndian),
+        dv.getFloat32(offset + 8, isLittleEndian)
+      );
+      offset += 12;
+
+      // Get all 3 vertices for this triangle
+      for (let j = 0; j < 3; j++) {
+        geometry.vertices.push(
+          new THREE.Vector3(
+            dv.getFloat32(offset, isLittleEndian),
+            dv.getFloat32(offset + 4, isLittleEndian),
+            dv.getFloat32(offset + 8, isLittleEndian)
+          )
+        );
+        offset += 12
+      }
+
+      // there's also a Uint16 "attribute byte count" that we
+      // don't need, it should always be zero.
+      offset += 2;
+
+      // Create a new face for from the vertices and the normal
+      geometry.faces.push(new THREE.Face3(i * 3, i * 3 + 1, i * 3 + 2, normal));
+    }
+
+    // The binary STL I'm testing with seems to have all
+    // zeroes for the normals, unlike its ASCII counterpart.
+    // We can use three.js to compute the normals for us, though,
+    // once we've assembled our geometry. This is a relatively
+    // expensive operation, but only needs to be done once.
+    geometry.computeFaceNormals();
+
+    return geometry;
+  },
+
+  parseBinaryDEP: function ( data ) {
     var reader = new DataView( data );
     var faces = reader.getUint32( 80, true );
 
@@ -131,7 +197,6 @@ THREE.STLLoader.prototype = {
         alpha = reader.getUint8( index + 9 ) / 255;
 
       }
-
     }
 
     var dataOffset = 84;
@@ -210,11 +275,13 @@ THREE.STLLoader.prototype = {
 
     }
 
-    return geometry;
+    geometry.computeFaceNormals();
 
+    return geometry;
   },
 
   parseASCII: function ( data ) {
+    console.log('parse ASCII');
 
     var geometry, length, normal, patternFace, patternNormal, patternVertex, result, text;
     geometry = new THREE.Geometry();
