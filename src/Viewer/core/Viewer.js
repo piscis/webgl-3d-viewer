@@ -4,7 +4,7 @@ import rest from 'lodash/array/rest';
 import each from 'lodash/collection/each';
 
 import ProgressBar from './../utils/ProgressBar';
-import STLLoader from './../loaders/STLLoader';
+import ModelLoader from './../loaders/ModelLoaderRegistry';
 import ModelControls from './../controls/ModelControls';
 import DragDropControls from './../controls/DragDropControls';
 
@@ -85,11 +85,15 @@ export default class Viewer {
     }
 
     let callb = cb || function() { };
-    let loader = new STLLoader();
+    let loader = new ModelLoader();
     let onLoadCB = (geometry)=>{
 
       this.loaderPath = path;
       this._initializeGeometry(geometry, callb);
+
+      if (geometry.registry === true) {
+        this.progressBar.hide();
+      }
     };
 
     let onProgressCB = (item)=>{
@@ -110,12 +114,11 @@ export default class Viewer {
 
         if (progress === 100) {
 
-          setTimeout(()=>{
-
+          setTimeout(()=> {
             if (this.progressBar) {
               this.progressBar.hide();
             }
-          }, 1500);
+          }, 500);
         }
       }
 
@@ -146,7 +149,7 @@ export default class Viewer {
     this.loaderContent = fileContent;
 
     let callb = cb || function() { };
-    let loader = new THREE.STLLoader();
+    let loader = new ModelLoader();
     let geometry = loader.parse(fileContent);
 
     if (this.progressBar) {
@@ -410,7 +413,14 @@ export default class Viewer {
         this.controls = null;
       }
 
-      this.controls = new ModelControls(this.container, this.camera, this.group, this.config);
+      let config = this.config;
+
+      if (this.model.geometry.registry === true) {
+        config = merge({}, this.config, this.model.geometry.controlsConfig);
+        config.startupAnimation = false;
+      }
+
+      this.controls = new ModelControls(this.container, this.camera, this.group, config);
     }
   }
 
@@ -604,8 +614,6 @@ export default class Viewer {
     this.group = null;
     this.camera = null;
     this.loader = null;
-    this.model = null;
-    this.controls = null;
     this.plane = null;
     this.axisHelper = null;
     this.renderer = null;
@@ -615,6 +623,12 @@ export default class Viewer {
     this.modelWireframe = null;
     this.loaderPath = null;
     this.loaderContent = null;
+
+    // Remove Model
+    if (this.model) {
+      this.model.geometry.controlsConfig = this.controls.controlsConfig;
+      this.model = null;
+    }
 
     // Remove progressBar
     if (this.progressBar) {
@@ -710,9 +724,11 @@ export default class Viewer {
     n.computeBoundingSphere();
     n.computeBoundingBox();
 
-    n.applyMatrix((new THREE.Matrix4).makeRotationX(-Math.PI / 2));
+    if (geometry.registry === false) {
+      n.applyMatrix((new THREE.Matrix4).makeRotationX(-Math.PI / 2));
+    }
 
-    const material = new THREE.MeshPhongMaterial( { color: 0xb3b3b3, specular: 0x111111, shininess: 20 } );
+    const material = new THREE.MeshPhongMaterial({ color: 0xb3b3b3, specular: 0x111111, shininess: 20 });
     const mesh = new THREE.Mesh( geometry, material );
 
     mesh.castShadow = true;
@@ -724,7 +740,6 @@ export default class Viewer {
     box.center(mesh.position);
     mesh.position.multiplyScalar(-1);
 
-
     this.model = mesh;
 
     if (this.config.material) {
@@ -734,9 +749,7 @@ export default class Viewer {
     this.scene.updateMatrixWorld();
 
     this._setupControls();
-
     this._restoreConfig();
-
 
     requestAnimationFrame((time)=>{
       this.animate(time);

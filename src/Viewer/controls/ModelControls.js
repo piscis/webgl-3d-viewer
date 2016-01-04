@@ -1,5 +1,6 @@
 import merge from 'lodash/object/merge';
 import sample from 'lodash/collection/sample';
+import round from 'lodash/math/round';
 import OrbitControls from './OrbitControls';
 import TWEEN from 'tween.js';
 
@@ -70,6 +71,9 @@ export default class ModelControls {
 
       finalRotationY: null,
 
+      currentRotationX: 0,
+      currentRotationY: 0,
+
       zoom: false
     };
 
@@ -79,29 +83,32 @@ export default class ModelControls {
 
     if (this.controlsConfig.startupAnimation === true) {
       this._createStartUpAnimation();
+    } else {
+      this.group.rotation.y = this.controlsConfig.currentRotationY;
+      this.group.rotation.x = this.controlsConfig.currentRotationX;
     }
   }
 
   update(time) {
-
     const group = this.group;
 
-    if (this.controls) {
-      this.controls.update();
-    }
-
     // Do tweening
-    TWEEN.update(time);
+    if (this.controlsConfig.startupAnimation === true ) {
+      TWEEN.update(time);
+    }
 
     if (group) {
 
       const cfg = this.controlsConfig;
 
-      group.rotation.y += ( cfg.targetRotationX - group.rotation.y ) * 0.1;
+      group.rotation.y += round(((cfg.targetRotationX - group.rotation.y ) * 0.1), 2);
 
       // vertical rotation
-      cfg.finalRotationY = (cfg.targetRotationY - group.rotation.x);
-      group.rotation.x += cfg.finalRotationY * 0.05;
+      cfg.finalRotationY = round((cfg.targetRotationY - group.rotation.x), 2);
+      group.rotation.x += round((cfg.finalRotationY * 0.05), 2);
+
+      this.controlsConfig.currentRotationX = group.rotation.x;
+      this.controlsConfig.currentRotationY = group.rotation.y;
     }
   }
 

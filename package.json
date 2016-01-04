@@ -78,6 +78,7 @@
     "webpack-dev-server": "^1.12.1"
   },
   "dependencies": {
+    "blueimp-md5": "^2.1.0",
     "gfr-css-bem": "^0.1.22",
     "intro.js": "^1.1.1",
     "lodash": "^3.10.1",
