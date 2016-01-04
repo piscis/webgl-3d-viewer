@@ -52,7 +52,7 @@ THREE.STLLoader.prototype = {
         var geometry = scope.parse(text);
         onLoad(geometry);
         onParseEnd();
-      },1000);
+      }, 1000);
 
     }, onProgress, onError );
 
@@ -75,9 +75,7 @@ THREE.STLLoader.prototype = {
       expect = 80 + ( 32 / 8 ) + ( n_faces * face_size );
 
       if ( expect === reader.byteLength ) {
-
         return true;
-
       }
 
       // some binary files will have different size from expected,
@@ -86,9 +84,7 @@ THREE.STLLoader.prototype = {
       for ( var index = 0; index < fileLength; index ++ ) {
 
         if ( reader.getUint8( index, false ) > 127 ) {
-
           return true;
-
         }
 
       }
@@ -172,6 +168,7 @@ THREE.STLLoader.prototype = {
     return geometry;
   },
 
+  // DEPRECATED ...
   parseBinaryDEP: function ( data ) {
     var reader = new DataView( data );
     var faces = reader.getUint32( 80, true );
@@ -281,7 +278,6 @@ THREE.STLLoader.prototype = {
   },
 
   parseASCII: function ( data ) {
-    console.log('parse ASCII');
 
     var geometry, length, normal, patternFace, patternNormal, patternVertex, result, text;
     geometry = new THREE.Geometry();
@@ -571,7 +567,5 @@ if ( typeof DataView === 'undefined' ) {
 
 // browserify support
 if ( typeof module === 'object' ) {
-
   module.exports = THREE.STLLoader;
-
 }
