@@ -30,9 +30,9 @@ var _utilsProgressBar = require('./../utils/ProgressBar');
 
 var _utilsProgressBar2 = _interopRequireDefault(_utilsProgressBar);
 
-var _loadersSTLLoader = require('./../loaders/STLLoader');
+var _loadersModelLoaderRegistry = require('./../loaders/ModelLoaderRegistry');
 
-var _loadersSTLLoader2 = _interopRequireDefault(_loadersSTLLoader);
+var _loadersModelLoaderRegistry2 = _interopRequireDefault(_loadersModelLoaderRegistry);
 
 var _controlsModelControls = require('./../controls/ModelControls');
 
@@ -124,11 +124,15 @@ var Viewer = (function () {
       }
 
       var callb = cb || function () {};
-      var loader = new _loadersSTLLoader2['default']();
+      var loader = new _loadersModelLoaderRegistry2['default']();
       var onLoadCB = function onLoadCB(geometry) {
 
         _this.loaderPath = path;
         _this._initializeGeometry(geometry, callb);
+
+        if (geometry.registry === true) {
+          _this.progressBar.hide();
+        }
       };
 
       var onProgressCB = function onProgressCB(item) {
@@ -150,11 +154,10 @@ var Viewer = (function () {
           if (progress === 100) {
 
             setTimeout(function () {
-
               if (_this.progressBar) {
                 _this.progressBar.hide();
               }
-            }, 1500);
+            }, 500);
           }
         }
       };
@@ -185,7 +188,7 @@ var Viewer = (function () {
       this.loaderContent = fileContent;
 
       var callb = cb || function () {};
-      var loader = new THREE.STLLoader();
+      var loader = new _loadersModelLoaderRegistry2['default']();
       var geometry = loader.parse(fileContent);
 
       if (this.progressBar) {
@@ -448,7 +451,14 @@ var Viewer = (function () {
           this.controls = null;
         }
 
-        this.controls = new _controlsModelControls2['default'](this.container, this.camera, this.group, this.config);
+        var config = this.config;
+
+        if (this.model.geometry.registry === true) {
+          config = (0, _lodashObjectMerge2['default'])({}, this.config, this.model.geometry.controlsConfig);
+          config.startupAnimation = false;
+        }
+
+        this.controls = new _controlsModelControls2['default'](this.container, this.camera, this.group, config);
       }
     }
   }, {
@@ -650,8 +660,6 @@ var Viewer = (function () {
       this.group = null;
       this.camera = null;
       this.loader = null;
-      this.model = null;
-      this.controls = null;
       this.plane = null;
       this.axisHelper = null;
       this.renderer = null;
@@ -661,6 +669,12 @@ var Viewer = (function () {
       this.modelWireframe = null;
       this.loaderPath = null;
       this.loaderContent = null;
+
+      // Remove Model
+      if (this.model) {
+        this.model.geometry.controlsConfig = this.controls.controlsConfig;
+        this.model = null;
+      }
 
       // Remove progressBar
       if (this.progressBar) {
@@ -777,7 +791,9 @@ var Viewer = (function () {
       n.computeBoundingSphere();
       n.computeBoundingBox();
 
-      n.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+      if (geometry.registry === false) {
+        n.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+      }
 
       var material = new THREE.MeshPhongMaterial({ color: 0xb3b3b3, specular: 0x111111, shininess: 20 });
       var mesh = new THREE.Mesh(geometry, material);
@@ -800,7 +816,6 @@ var Viewer = (function () {
       this.scene.updateMatrixWorld();
 
       this._setupControls();
-
       this._restoreConfig();
 
       requestAnimationFrame(function (time) {
