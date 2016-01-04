@@ -18,6 +18,10 @@ var _lodashCollectionSample = require('lodash/collection/sample');
 
 var _lodashCollectionSample2 = _interopRequireDefault(_lodashCollectionSample);
 
+var _lodashMathRound = require('lodash/math/round');
+
+var _lodashMathRound2 = _interopRequireDefault(_lodashMathRound);
+
 var _OrbitControls = require('./OrbitControls');
 
 var _OrbitControls2 = _interopRequireDefault(_OrbitControls);
@@ -87,6 +91,9 @@ var ModelControls = (function () {
 
       finalRotationY: null,
 
+      currentRotationX: 0,
+      currentRotationY: 0,
+
       zoom: false
     };
 
@@ -96,31 +103,34 @@ var ModelControls = (function () {
 
     if (this.controlsConfig.startupAnimation === true) {
       this._createStartUpAnimation();
+    } else {
+      this.group.rotation.y = this.controlsConfig.currentRotationY;
+      this.group.rotation.x = this.controlsConfig.currentRotationX;
     }
   }
 
   _createClass(ModelControls, [{
     key: 'update',
     value: function update(time) {
-
       var group = this.group;
 
-      if (this.controls) {
-        this.controls.update();
-      }
-
       // Do tweening
-      _tweenJs2['default'].update(time);
+      if (this.controlsConfig.startupAnimation === true) {
+        _tweenJs2['default'].update(time);
+      }
 
       if (group) {
 
         var cfg = this.controlsConfig;
 
-        group.rotation.y += (cfg.targetRotationX - group.rotation.y) * 0.1;
+        group.rotation.y += (0, _lodashMathRound2['default'])((cfg.targetRotationX - group.rotation.y) * 0.1, 2);
 
         // vertical rotation
-        cfg.finalRotationY = cfg.targetRotationY - group.rotation.x;
-        group.rotation.x += cfg.finalRotationY * 0.05;
+        cfg.finalRotationY = (0, _lodashMathRound2['default'])(cfg.targetRotationY - group.rotation.x, 2);
+        group.rotation.x += (0, _lodashMathRound2['default'])(cfg.finalRotationY * 0.05, 2);
+
+        this.controlsConfig.currentRotationX = group.rotation.x;
+        this.controlsConfig.currentRotationY = group.rotation.y;
       }
     }
   }, {
