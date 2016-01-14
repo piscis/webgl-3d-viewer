@@ -13,8 +13,8 @@ export default class ProgressBar {
       visibility: 'hidden',
       progress: 0,
       unit: '%',
-      text: 'Preparing 3D Preview ',
-      progressText: 'Preparing 3D Preview'
+      text: 'Preview ',
+      progressText: 'Preview'
     };
 
     this.template = template(`
